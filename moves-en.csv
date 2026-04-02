@@ -1,0 +1,256 @@
+damage,move_name
+1,Gentle Touch
+2,Blink
+3,Tickle
+4,Fan
+5,Blow
+6,Hair Flip
+7,Snap
+8,Wave
+9,Shrug
+10,Step
+11,Clap
+12,Sleeve Flick
+13,Knee Tap
+14,Punch
+15,Elbow Strike
+16,Knee Strike
+17,Palm Push
+18,Sweep
+19,Low Kick
+20,Medium Kick
+21,High Kick
+22,Spinning Kick
+23,Power Kick
+24,Combo Kick
+25,Crane Kick
+26,Cyclone Kick
+27,Tiger Tail Kick
+28,Flying Dragon Kick
+29,Bone Crusher Kick
+30,Cloud Piercer
+31,Uppercut
+32,Undercut
+33,Swing Punch
+34,Solar Punch
+35,Rapid Punch
+36,Hammer Fist
+37,Explosive Punch
+38,Meteor Punch
+39,Comet Punch
+40,Hundred Crack Punch
+41,Rock Breaker
+42,Crag Breaker
+43,Vajra Fist
+44,Arhat Fist
+45,Tai Chi Fist
+46,Bagua Fist
+47,Xingyi Fist
+48,Baji Fist
+49,Wing Chun Fist
+50,Hung Fist
+51,Mantis Fist
+52,Snake Fist
+53,Tiger Fist
+54,Dragon Fist
+55,Leopard Fist
+56,Crane Fist
+57,Lion Fist
+58,Monkey Fist
+59,Drunken Fist
+60,Soft Palm
+61,Iron Sand Palm
+62,Heart Destroyer Palm
+63,Five Poison Palm
+64,Ice Palm
+65,Fire Palm
+66,Thunder Palm
+67,Purple Lightning Palm
+68,Azure Palm
+69,Dark Palm
+70,Cloud Push Palm
+71,Wind God Leg
+72,Thunder God Leg
+73,Lightning God Leg
+74,Snow God Leg
+75,Ice God Leg
+76,Flame Leg
+77,Earth Splitter Leg
+78,Heaven Breaker Leg
+79,Heaven Scar Leg
+80,Shadowless Kick
+81,Mandarin Duck Leg
+82,Soul Hook Leg
+83,Throat Lock Leg
+84,Soul Cutter Leg
+85,Death Seeker Leg
+86,Wind Chaser Leg
+87,Lightning Leg
+88,Flame Leg
+89,Ice Leg
+90,Golden Bell Shield
+91,Iron Cloth Armor
+92,Indestructible Body
+93,Thirteen Champions
+94,Mixed Origin Kung
+95,Yijin Jing
+96,Xisui Jing
+97,Nine Yang Divine
+98,Nine Yin True
+99,Beiming Divine
+100,Star Absorbing
+101,Hua Gong
+102,Small Wuxiang
+103,Six Yang Melt Snow
+104,Eight Wastes Alone
+105,Shenzhao Jing
+106,Taixuan Jing
+107,Jade Maiden Heart
+108,Wedding Clothes Divine
+109,Mingyu Gong
+110,独孤九剑
+111,辟邪剑法
+112,葵花宝典
+113,降龙十八掌
+114,打狗棒法
+115,九阴白骨爪
+116,六脉神剑
+117,One Yang Finger
+118,弹指神通
+119,天外飞仙
+120,万剑归宗
+121,万箭齐发
+122,排山倒海
+123,翻江倒海
+124,天崩地裂
+125,雷霆万钧
+126,电闪雷鸣
+127,风云变色
+128,天旋地转
+129,山崩海啸
+130,天罗地网
+131,天崩地裂
+132,defmodule
+133,defmodule
+134,defmodule
+135,defmodule
+136,defmodule
+137,defmodule
+138,defmodule
+139,defmodule
+140,defmodule
+141,defmodule
+142,defmodule
+143,defmodule
+144,defmodule
+145,defmodule
+146,defmodule
+147,defmodule
+148,defmodule
+149,defmodule
+150,defmodule
+151,defmodule
+152,defmodule
+153,defmodule
+154,defmodule
+155,defmodule
+156,defmodule
+157,defmodule
+158,defmodule
+159,defmodule
+160,defmodule
+161,defmodule
+162,defmodule
+163,defmodule
+164,defmodule
+165,defmodule
+166,defmodule
+167,defmodule
+168,defmodule
+169,defmodule
+170,defmodule
+171,defmodule
+172,defmodule
+173,defmodule
+174,defmodule
+175,defmodule
+176,defmodule
+177,defmodule
+178,defmodule
+179,defmodule
+180,defmodule
+181,defmodule
+182,defmodule
+183,defmodule
+184,defmodule
+185,defmodule
+186,defmodule
+187,defmodule
+188,defmodule
+189,defmodule
+190,defmodule
+191,defmodule
+192,defmodule
+193,defmodule
+194,defmodule
+195,defmodule
+196,defmodule
+197,defmodule
+198,defmodule
+199,defmodule
+200,defmodule
+201,defmodule
+202,defmodule
+203,defmodule
+204,defmodule
+205,defmodule
+206,defmodule
+207,defmodule
+208,defmodule
+209,defmodule
+210,defmodule
+211,defmodule
+212,defmodule
+213,defmodule
+214,defmodule
+215,defmodule
+216,defmodule
+217,defmodule
+218,defmodule
+219,defmodule
+220,defmodule
+221,defmodule
+222,defmodule
+223,defmodule
+224,defmodule
+225,defmodule
+226,defmodule
+227,defmodule
+228,defmodule
+229,defmodule
+230,defmodule
+231,defmodule
+232,defmodule
+233,defmodule
+234,defmodule
+235,defmodule
+236,defmodule
+237,defmodule
+238,defmodule
+239,defmodule
+240,defmodule
+241,defmodule
+242,defmodule
+243,defmodule
+244,defmodule
+245,defmodule
+246,defmodule
+247,defmodule
+248,defmodule
+249,defmodule
+250,defmodule
+251,defmodule
+252,defmodule
+253,defmodule
+254,defmodule
+255,defmodule
