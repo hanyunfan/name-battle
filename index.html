@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>名字大战 - Name Battle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 3rem;
+            background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(255, 107, 107, 0.3);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .setup-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            border-color: #4d96ff;
+            background: rgba(77, 150, 255, 0.2);
+        }
+
+        .mode-btn:hover {
+            border-color: #4d96ff;
+        }
+
+        .players-section {
+            margin-bottom: 20px;
+        }
+
+        .players-section h3 {
+            margin-bottom: 15px;
+            color: #aaa;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .player-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .player-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .player-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            font-size: 1rem;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .player-input input:focus {
+            border-color: #4d96ff;
+        }
+
+        .player-input input::placeholder {
+            color: #666;
+        }
+
+        .player-num {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            background: rgba(77, 150, 255, 0.3);
+            border-radius: 50%;
+            font-weight: bold;
+            color: #4d96ff;
+        }
+
+        .add-player-btn {
+            padding: 10px 20px;
+            background: rgba(107, 203, 119, 0.2);
+            border: 2px solid #6bcb77;
+            color: #6bcb77;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .add-player-btn:hover {
+            background: rgba(107, 203, 119, 0.3);
+        }
+
+        .start-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            border: none;
+            color: #fff;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.4);
+        }
+
+        .start-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Battle Arena */
+        .battle-arena {
+            display: none;
+        }
+
+        .battle-arena.active {
+            display: block;
+        }
+
+        .battle-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .battle-title {
+            font-size: 1.5rem;
+            color: #ffd93d;
+            margin-bottom: 5px;
+        }
+
+        .round-counter {
+            color: #888;
+        }
+
+        /* VS Display */
+        .vs-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .player-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 25px;
+            width: 280px;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+
+        .player-card.winner {
+            border-color: #6bcb77;
+            box-shadow: 0 0 30px rgba(107, 203, 119, 0.3);
+        }
+
+        .player-card.loser {
+            opacity: 0.5;
+            border-color: #ff6b6b;
+        }
+
+        .player-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .hp-bar-container {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            height: 30px;
+            overflow: hidden;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .hp-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #6bcb77, #4d96ff);
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .hp-bar.danger {
+            background: linear-gradient(90deg, #ff6b6b, #ff8e53);
+        }
+
+        .hp-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .damage-display {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin-top: 10px;
+            min-height: 40px;
+        }
+
+        .vs-text {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ffd93d;
+            text-shadow: 0 0 20px rgba(255, 217, 61, 0.5);
+        }
+
+        /* Battle Log */
+        .battle-log {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .battle-log h3 {
+            color: #aaa;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .log-entry {
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .log-entry.round {
+            color: #4d96ff;
+            font-weight: bold;
+        }
+
+        .log-entry.attack {
+            color: #ff6b6b;
+        }
+
+        .log-entry.eliminated {
+            color: #6bcb77;
+            font-weight: bold;
+            background: rgba(107, 203, 119, 0.2);
+        }
+
+        .log-entry.winner {
+            color: #ffd93d;
+            font-weight: bold;
+            background: rgba(255, 217, 61, 0.2);
+        }
+
+        /* Tournament Bracket */
+        .tournament-bracket {
+            display: none;
+            margin-bottom: 30px;
+        }
+
+        .tournament-bracket.active {
+            display: block;
+        }
+
+        .bracket-title {
+            text-align: center;
+            font-size: 1.3rem;
+            color: #ffd93d;
+            margin-bottom: 20px;
+        }
+
+        .bracket-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .bracket-round {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .bracket-match {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            min-width: 150px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .bracket-match.completed {
+            border-color: #6bcb77;
+        }
+
+        .bracket-match.current {
+            border-color: #ffd93d;
+            box-shadow: 0 0 15px rgba(255, 217, 61, 0.3);
+        }
+
+        .bracket-player {
+            padding: 5px;
+            font-size: 0.9rem;
+        }
+
+        .bracket-player.winner {
+            color: #6bcb77;
+            font-weight: bold;
+        }
+
+        .bracket-player.loser {
+            color: #666;
+            text-decoration: line-through;
+        }
+
+        .bracket-vs {
+            color: #ffd93d;
+            font-size: 0.8rem;
+            margin: 5px 0;
+        }
+
+        /* Champion Display */
+        .champion-display {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(255, 217, 61, 0.1), rgba(107, 203, 119, 0.1));
+            border-radius: 20px;
+            border: 2px solid #ffd93d;
+            margin-bottom: 20px;
+        }
+
+        .champion-display.active {
+            display: block;
+        }
+
+        .champion-title {
+            font-size: 1.2rem;
+            color: #aaa;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .champion-name {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, #ffd93d, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .champion-congrats {
+            font-size: 1.5rem;
+            color: #6bcb77;
+        }
+
+        /* Back Button */
+        .back-btn {
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Battle Progress */
+        .battle-progress {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77);
+            transition: width 0.3s;
+        }
+
+        /* History */
+        .history-section {
+            margin-top: 30px;
+        }
+
+        .history-title {
+            color: #aaa;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+        }
+
+        .history-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .history-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-match {
+            color: #aaa;
+            font-size: 0.85rem;
+        }
+
+        .history-winner {
+            color: #6bcb77;
+            font-weight: bold;
+        }
+
+        /* Animations */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .shake {
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .pulse {
+            animation: pulse 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚔️ 名字大战 ⚔️</h1>
+        <p class="subtitle">Name Battle - 基于 SHA256 的随机对战游戏</p>
+
+        <!-- Setup Panel -->
+        <div class="setup-panel" id="setupPanel">
+            <div class="mode-selector">
+                <button class="mode-btn active" data-mode="duel" onclick="setMode('duel')">⚔️ 1v1 对决</button>
+                <button class="mode-btn" data-mode="tournament" onclick="setMode('tournament')">🏆 淘汰赛</button>
+            </div>
+
+            <div class="players-section">
+                <h3>参赛选手</h3>
+                <div class="player-inputs" id="playerInputs">
+                    <div class="player-input">
+                        <span class="player-num">1</span>
+                        <input type="text" id="player1" placeholder="选手1的名字" maxlength="50">
+                    </div>
+                    <div class="player-input">
+                        <span class="player-num">2</span>
+                        <input type="text" id="player2" placeholder="选手2的名字" maxlength="50">
+                    </div>
+                </div>
+                <button class="add-player-btn" id="addPlayerBtn" onclick="addPlayer()" style="display:none">+ 添加选手</button>
+            </div>
+
+            <button class="start-btn" id="startBtn" onclick="startBattle()">开始战斗</button>
+        </div>
+
+        <!-- Battle Arena -->
+        <div class="battle-arena" id="battleArena">
+            <button class="back-btn" onclick="backToSetup()">← 返回</button>
+
+            <!-- Tournament Bracket -->
+            <div class="tournament-bracket" id="tournamentBracket">
+                <div class="bracket-title">🏆 淘汰赛对阵图</div>
+                <div class="bracket-container" id="bracketContainer"></div>
+            </div>
+
+            <!-- Champion Display -->
+            <div class="champion-display" id="championDisplay">
+                <div class="champion-title">🏆 冠军 🏆</div>
+                <div class="champion-name" id="championName"></div>
+                <div class="champion-congrats">🎉 恭喜获得最终胜利！🎉</div>
+            </div>
+
+            <!-- VS Display -->
+            <div class="vs-container" id="vsContainer">
+                <div class="player-card" id="player1Card">
+                    <div class="player-name" id="player1Name">选手1</div>
+                    <div class="hp-bar-container">
+                        <div class="hp-bar" id="player1HpBar"></div>
+                    </div>
+                    <div class="hp-text"><span id="player1Hp">500</span> / 500 HP</div>
+                    <div class="damage-display" id="player1Damage"></div>
+                </div>
+
+                <div class="vs-text">VS</div>
+
+                <div class="player-card" id="player2Card">
+                    <div class="player-name" id="player2Name">选手2</div>
+                    <div class="hp-bar-container">
+                        <div class="hp-bar" id="player2HpBar"></div>
+                    </div>
+                    <div class="hp-text"><span id="player2Hp">500</span> / 500 HP</div>
+                    <div class="damage-display" id="player2Damage"></div>
+                </div>
+            </div>
+
+            <div class="battle-progress">
+                <div class="round-counter">回合: <span id="roundCounter">0</span></div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="battle-log" id="battleLog">
+                <h3>⚔️ 战斗记录</h3>
+                <div id="logContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameMode = 'duel';
+        let players = ['', ''];
+        let battleInterval = null;
+        let battleState = null;
+
+        const MAX_HP = 500;
+        const ROUND_INTERVAL = 1000; // 1 second per round
+
+        function setMode(mode) {
+            gameMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+
+            const addBtn = document.getElementById('addPlayerBtn');
+            const inputs = document.getElementById('playerInputs');
+
+            if (mode === 'tournament') {
+                addBtn.style.display = 'block';
+                // Ensure at least 4 players for tournament
+                while (players.length < 4) players.push('');
+                updatePlayerInputs();
+            } else {
+                addBtn.style.display = 'none';
+                players = ['', ''];
+                updatePlayerInputs();
+            }
+        }
+
+        function updatePlayerInputs() {
+            const container = document.getElementById('playerInputs');
+            container.innerHTML = '';
+
+            players.forEach((name, i) => {
+                const div = document.createElement('div');
+                div.className = 'player-input';
+                div.innerHTML = `
+                    <span class="player-num">${i + 1}</span>
+                    <input type="text" id="player${i + 1}" placeholder="选手${i + 1}的名字" maxlength="50" value="${name}" oninput="players[${i}] = this.value">
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function addPlayer() {
+            if (players.length < 16) {
+                players.push('');
+                updatePlayerInputs();
+            }
+        }
+
+        function validatePlayers() {
+            const validPlayers = players.filter(p => p.trim() !== '');
+            if (gameMode === 'duel' && validPlayers.length < 2) {
+                alert('请输入至少2个选手的名字！');
+                return false;
+            }
+            if (gameMode === 'tournament' && validPlayers.length < 2) {
+                alert('淘汰赛至少需要2个选手！');
+                return false;
+            }
+            // Check if power of 2 for tournament
+            if (gameMode === 'tournament' && validPlayers.length > 2) {
+                const nextPowerOf2 = Math.pow(2, Math.ceil(Math.log2(validPlayers.length)));
+                if (validPlayers.length !== nextPowerOf2) {
+                    alert('淘汰赛选手数量需要是2的次方（2, 4, 8, 16...）');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        async function startBattle() {
+            if (!validatePlayers()) return;
+
+            // Update players from inputs
+            players = [];
+            for (let i = 1; ; i++) {
+                const input = document.getElementById(`player${i}`);
+                if (!input) break;
+                players.push(input.value.trim());
+            }
+            players = players.filter(p => p !== '');
+
+            document.getElementById('setupPanel').style.display = 'none';
+            document.getElementById('battleArena').classList.add('active');
+
+            if (gameMode === 'tournament') {
+                await startTournament();
+            } else {
+                await startDuel();
+            }
+        }
+
+        function backToSetup() {
+            if (battleInterval) {
+                clearInterval(battleInterval);
+                battleInterval = null;
+            }
+            document.getElementById('battleArena').classList.remove('active');
+            document.getElementById('setupPanel').style.display = 'block';
+            document.getElementById('championDisplay').classList.remove('active');
+            document.getElementById('tournamentBracket').classList.remove('active');
+        }
+
+        // SHA256 implementation for browser
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        function getDamageFromHash(hash, index) {
+            // Get 1 or 2 hex digits from the hash at the index
+            const useTwoDigits = index % 2 === 0;
+            let hexVal;
+
+            if (useTwoDigits && index + 1 < hash.length) {
+                hexVal = hash.substring(index, index + 2);
+            } else {
+                hexVal = hash.substring(index % hash.length, (index % hash.length) + 1);
+            }
+
+            // Convert to decimal, ensure at least 1 damage
+            let damage = parseInt(hexVal, 16) % 100;
+            if (damage === 0) damage = Math.floor(Math.random() * 20) + 1;
+            return damage;
+        }
+
+        function createPlayer(name) {
+            return {
+                name: name,
+                hp: MAX_HP,
+                hash: null,
+                damage: 0
+            };
+        }
+
+        async function startDuel() {
+            const p1 = createPlayer(players[0]);
+            const p2 = createPlayer(players[1]);
+
+            // Generate SHA256 hashes
+            p1.hash = await sha256(p1.name);
+            p2.hash = await sha256(p2.name);
+
+            document.getElementById('player1Name').textContent = p1.name;
+            document.getElementById('player2Name').textContent = p2.name;
+            document.getElementById('player1Hp').textContent = MAX_HP;
+            document.getElementById('player2Hp').textContent = MAX_HP;
+            document.getElementById('player1HpBar').style.width = '100%';
+            document.getElementById('player2HpBar').style.width = '100%';
+            document.getElementById('player1Damage').textContent = '';
+            document.getElementById('player2Damage').textContent = '';
+            document.getElementById('player1Card').classList.remove('winner', 'loser');
+            document.getElementById('player2Card').classList.remove('winner', 'loser');
+            document.getElementById('logContent').innerHTML = '';
+            document.getElementById('roundCounter').textContent = '0';
+
+            document.getElementById('tournamentBracket').classList.remove('active');
+            document.getElementById('championDisplay').classList.remove('active');
+            document.getElementById('vsContainer').style.display = 'flex';
+
+            battleState = {
+                p1, p2,
+                round: 0,
+                hashIndex: 0,
+                currentAttack: null
+            };
+
+            addLog(`⚔️ 对决开始: ${p1.name} VS ${p2.name}`, 'round');
+            addLog(`💡 ${p1.name} 的哈希: ${p1.hash.substring(0, 16)}...`, '');
+            addLog(`💡 ${p2.name} 的哈希: ${p2.hash.substring(0, 16)}...`, '');
+
+            battleInterval = setInterval(runDuelRound, ROUND_INTERVAL);
+        }
+
+        function runDuelRound() {
+            const { p1, p2, hashIndex } = battleState;
+            battleState.round++;
+
+            // Calculate damages for this round
+            const damage1 = getDamageFromHash(p1.hash, hashIndex);
+            const damage2 = getDamageFromHash(p2.hash, hashIndex);
+
+            // Apply damages
+            p2.hp = Math.max(0, p2.hp - damage1);
+            p1.hp = Math.max(0, p1.hp - damage2);
+
+            // Update display
+            document.getElementById('player1Hp').textContent = p1.hp;
+            document.getElementById('player2Hp').textContent = p2.hp;
+            document.getElementById('player1HpBar').style.width = `${(p1.hp / MAX_HP) * 100}%`;
+            document.getElementById('player2HpBar').style.width = `${(p2.hp / MAX_HP) * 100}%`;
+            document.getElementById('player1Damage').textContent = `-${damage2}`;
+            document.getElementById('player2Damage').textContent = `-${damage1}`;
+            document.getElementById('roundCounter').textContent = battleState.round;
+            document.getElementById('progressFill').style.width = `${((MAX_HP - p1.hp) / MAX_HP) * 100}%`;
+
+            // Update HP bar colors
+            document.getElementById('player1HpBar').classList.toggle('danger', p1.hp < 150);
+            document.getElementById('player2HpBar').classList.toggle('danger', p2.hp < 150);
+
+            // Log
+            addLog(`回合 ${battleState.round}: ${p1.name} 受到 ${damage2} 伤害，${p2.name} 受到 ${damage1} 伤害`, 'attack');
+
+            // Check for winner
+            if (p1.hp <= 0 || p2.hp <= 0) {
+                clearInterval(battleInterval);
+                battleInterval = null;
+
+                const winner = p1.hp > 0 ? p1 : p2;
+                const loser = p1.hp > 0 ? p2 : p1;
+
+                addLog(`💀 ${loser.name} 被击败！`, 'eliminated');
+                addLog(`🏆 ${winner.name} 获胜！HP 剩余: ${winner.hp}`, 'winner');
+
+                document.getElementById('player1Card').classList.toggle('winner', winner === p1);
+                document.getElementById('player1Card').classList.toggle('loser', loser === p1);
+                document.getElementById('player2Card').classList.toggle('winner', winner === p2);
+                document.getElementById('player2Card').classList.toggle('loser', loser === p2);
+
+                document.getElementById('player1Damage').textContent = winner === p1 ? '' : '💀';
+                document.getElementById('player2Damage').textContent = winner === p2 ? '' : '💀';
+            }
+
+            battleState.hashIndex = (hashIndex + 2) % 64;
+        }
+
+        async function startTournament() {
+            const tournamentPlayers = [...players];
+
+            // Ensure power of 2
+            while (tournamentPlayers.length < tournamentPlayers.length) {
+                tournamentPlayers.push(null);
+            }
+
+            document.getElementById('tournamentBracket').classList.add('active');
+            document.getElementById('championDisplay').classList.remove('active');
+            document.getElementById('vsContainer').style.display = 'none';
+
+            // Build bracket
+            const rounds = Math.log2(tournamentPlayers.length);
+            const bracketData = {
+                rounds: [],
+                players: tournamentPlayers
+            };
+
+            // Create matches for each round
+            let currentRound = [];
+            for (let i = 0; i < tournamentPlayers.length; i += 2) {
+                currentRound.push({
+                    p1: tournamentPlayers[i],
+                    p2: tournamentPlayers[i + 1],
+                    winner: null
+                });
+            }
+            bracketData.rounds.push(currentRound);
+
+            // Render initial bracket
+            renderBracket(bracketData);
+
+            // Run tournament
+            await runTournament(bracketData);
+        }
+
+        function renderBracket(bracketData) {
+            const container = document.getElementById('bracketContainer');
+            container.innerHTML = '';
+
+            bracketData.rounds.forEach((round, roundIndex) => {
+                const roundDiv = document.createElement('div');
+                roundDiv.className = 'bracket-round';
+
+                const roundName = roundIndex === bracketData.rounds.length - 1 ? '决赛' :
+                                  roundIndex === bracketData.rounds.length - 2 ? '半决赛' :
+                                  `第${roundIndex + 1}轮`;
+
+                round.forEach((match, matchIndex) => {
+                    const matchDiv = document.createElement('div');
+                    matchDiv.className = 'bracket-match';
+                    if (match.winner) matchDiv.classList.add('completed');
+
+                    matchDiv.innerHTML = `
+                        <div class="bracket-player ${match.winner === match.p1 ? 'winner' : ''} ${match.winner && match.winner !== match.p1 ? 'loser' : ''}">${match.p1 || '?'}</div>
+                        <div class="bracket-vs">VS</div>
+                        <div class="bracket-player ${match.winner === match.p2 ? 'winner' : ''} ${match.winner && match.winner !== match.p2 ? 'loser' : ''}">${match.p2 || '?'}</div>
+                    `;
+
+                    roundDiv.appendChild(matchDiv);
+                });
+
+                container.appendChild(roundDiv);
+            });
+        }
+
+        async function runTournament(bracketData) {
+            let roundIndex = 0;
+
+            while (roundIndex < bracketData.rounds.length) {
+                const currentRound = bracketData.rounds[roundIndex];
+                const nextRoundMatches = [];
+
+                for (let i = 0; i < currentRound.length; i += 2) {
+                    const match1 = currentRound[i];
+                    const match2 = currentRound[i + 1];
+
+                    if (!match1 || !match2) continue;
+                    if (!match1.winner) match1.winner = match1.p1;
+                    if (!match2.winner) match2.winner = match2.p1;
+
+                    // Run the match
+                    const winner = await runMatch(match1.p1, match1.p2, match1.p1, match2.p2);
+
+                    nextRoundMatches.push({
+                        p1: match1.winner === match1.p1 ? winner : (match1.winner === match1.p2 ? match1.p2 : winner),
+                        p2: match2.winner === match2.p1 ? winner : (match2.winner === match2.p2 ? match2.p2 : winner),
+                        winner: null
+                    });
+
+                    bracketData.rounds[roundIndex][i].winner = match1.winner === match1.p1 ? winner : match1.p2;
+                    bracketData.rounds[roundIndex][i + 1].winner = match2.winner === match2.p1 ? winner : match2.p2;
+
+                    renderBracket(bracketData);
+                    await sleep(500);
+                }
+
+                if (nextRoundMatches.length > 1) {
+                    bracketData.rounds.push(nextRoundMatches);
+                }
+
+                roundIndex++;
+            }
+
+            // Show champion
+            const finalWinner = bracketData.rounds[bracketData.rounds.length - 1][0].winner;
+            document.getElementById('championName').textContent = finalWinner;
+            document.getElementById('championDisplay').classList.add('active');
+        }
+
+        async function runMatch(p1Name, p2Name, p1Advantage, p2Advantage) {
+            return new Promise((resolve) => {
+                const p1 = createPlayer(p1Name);
+                const p2 = createPlayer(p2Name);
+
+                // Show match UI
+                document.getElementById('vsContainer').style.display = 'flex';
+                document.getElementById('player1Name').textContent = p1.name;
+                document.getElementById('player2Name').textContent = p2.name;
+                document.getElementById('player1Hp').textContent = MAX_HP;
+                document.getElementById('player2Hp').textContent = MAX_HP;
+                document.getElementById('player1HpBar').style.width = '100%';
+                document.getElementById('player2HpBar').style.width = '100%';
+                document.getElementById('player1Card').classList.remove('winner', 'loser');
+                document.getElementById('player2Card').classList.remove('winner', 'loser');
+                document.getElementById('logContent').innerHTML = '';
+                document.getElementById('roundCounter').textContent = '0';
+                document.getElementById('championDisplay').classList.remove('active');
+
+                let hashIndex = 0;
+                let round = 0;
+
+                sha256(p1.name).then(h => { p1.hash = h; });
+                sha256(p2.name).then(h => { p2.hash = h; });
+
+                addLog(`⚔️ ${p1.name} VS ${p2.name}`, 'round');
+
+                const matchInterval = setInterval(() => {
+                    round++;
+
+                    const damage1 = getDamageFromHash(p1.hash || '', hashIndex);
+                    const damage2 = getDamageFromHash(p2.hash || '', hashIndex);
+
+                    p2.hp = Math.max(0, p2.hp - damage1);
+                    p1.hp = Math.max(0, p1.hp - damage2);
+
+                    document.getElementById('player1Hp').textContent = p1.hp;
+                    document.getElementById('player2Hp').textContent = p2.hp;
+                    document.getElementById('player1HpBar').style.width = `${(p1.hp / MAX_HP) * 100}%`;
+                    document.getElementById('player2HpBar').style.width = `${(p2.hp / MAX_HP) * 100}%`;
+                    document.getElementById('player1Damage').textContent = `-${damage2}`;
+                    document.getElementById('player2Damage').textContent = `-${damage1}`;
+                    document.getElementById('player1HpBar').classList.toggle('danger', p1.hp < 150);
+                    document.getElementById('player2HpBar').classList.toggle('danger', p2.hp < 150);
+                    document.getElementById('roundCounter').textContent = round;
+
+                    addLog(`回合 ${round}: ${p1.name} -${damage1} HP | ${p2.name} -${damage2} HP`, 'attack');
+
+                    hashIndex = (hashIndex + 2) % 64;
+
+                    if (p1.hp <= 0 || p2.hp <= 0) {
+                        clearInterval(matchInterval);
+                        const winner = p1.hp > 0 ? p1.name : p2.name;
+                        const loser = p1.hp > 0 ? p2.name : p1.name;
+
+                        addLog(`💀 ${loser} 被淘汰！`, 'eliminated');
+                        addLog(`✅ ${winner} 晋级！`, 'winner');
+
+                        document.getElementById('player1Card').classList.toggle('winner', p1.name === winner);
+                        document.getElementById('player1Card').classList.toggle('loser', p1.name === loser);
+                        document.getElementById('player2Card').classList.toggle('winner', p2.name === winner);
+                        document.getElementById('player2Card').classList.toggle('loser', p2.name === loser);
+
+                        setTimeout(() => resolve(winner), 1000);
+                    }
+                }, ROUND_INTERVAL);
+            });
+        }
+
+        function addLog(message, type) {
+            const logContent = document.getElementById('logContent');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = message;
+            logContent.appendChild(entry);
+            logContent.scrollTop = logContent.scrollHeight;
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Initialize
+        updatePlayerInputs();
+    </script>
+</body>
+</html>

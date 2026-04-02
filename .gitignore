@@ -1,0 +1,5 @@
+# Ignore temporary files
+*.json.bak
+*.ps1.bak
+output_*.txt
+test_*.txt
