@@ -664,7 +664,7 @@
             let hexVal = useTwoDigits && index + 1 < hash.length 
                 ? hash.substring(index, index + 2) 
                 : hash.substring(index % hash.length, (index % hash.length) + 1);
-            let damage = parseInt(hexVal, 16) % 100;
+            let damage = parseInt(hexVal, 16) % 130;
             return damage === 0 ? Math.floor(Math.random() * 20) + 1 : damage;
         }
         
@@ -746,8 +746,8 @@
                 
                 if (isTie) {
                     addLogToElement('duelLogContent', `💀 ${battleState.round >= MAX_ROUNDS ? MAX_ROUNDS + t.round : ''} ${t.tie}! HP: ${p1.hp} vs ${p2.hp}`, 'tie');
-                    p1Card.classList.add('tie');
-                    p2Card.classList.add('tie');
+                    p1Card.classList.add('winner');
+                    p2Card.classList.add('loser');
                 } else {
                     const winner = p1.hp > 0 ? p1 : p2;
                     const loser = p1.hp > 0 ? p2 : p1;
@@ -891,7 +891,7 @@
                         
                         let winner;
                         if (isTie) {
-                            winner = p1.hp >= p2.hp ? p1.name : p2.name;
+                            winner = p1.name; // Left side (home) wins in tie
                             const tieMsg = `💀 ${round >= MAX_ROUNDS ? MAX_ROUNDS + t.round : ''} ${t.tie}! HP: ${p1.hp} vs ${p2.hp}`;
                             addLogToElement('logContent', tieMsg, 'tie');
                             matchLogs[matchKey].push({ msg: tieMsg, type: 'tie' });
