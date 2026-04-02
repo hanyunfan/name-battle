@@ -630,16 +630,24 @@
             addLog(`回合 ${battleState.round}: ${p1.name} 使用 ${move1} 对 ${p2.name} 造成 ${damage1} 伤害`, 'attack');
             addLog(`回合 ${battleState.round}: ${p2.name} 使用 ${move2} 对 ${p1.name} 造成 ${damage2} 伤害`, 'attack');
             
-            if (p1.hp <= 0 || p2.hp <= 0) {
+            // Check for battle end: death or 15 rounds (tie)
+            if (p1.hp <= 0 || p2.hp <= 0 || battleState.round >= 15) {
                 clearInterval(battleInterval);
                 battleInterval = null;
                 
                 const p1Card = document.getElementById('player1Card');
                 const p2Card = document.getElementById('player2Card');
                 
-                if (p1.hp <= 0 && p2.hp <= 0) {
+                // Tie conditions: both dead OR 15 rounds reached
+                const isTie = (p1.hp <= 0 && p2.hp <= 0) || battleState.round >= 15;
+                
+                if (isTie) {
                     // Tie
-                    addLog(`💀 ${t.tie}! ${p1.name} HP: ${p1.hp}, ${p2.name} HP: ${p2.hp}`, 'tie');
+                    if (battleState.round >= 15) {
+                        addLog(`💀 15回合平局! ${p1.name} HP: ${p1.hp}, ${p2.name} HP: ${p2.hp}`, 'tie');
+                    } else {
+                        addLog(`💀 ${t.tie}! ${p1.name} HP: ${p1.hp}, ${p2.name} HP: ${p2.hp}`, 'tie');
+                    }
                     p1Card.classList.add('tie');
                     p2Card.classList.add('tie');
                     document.getElementById('player1Move').textContent = t.tie;
@@ -774,14 +782,21 @@
                     
                     hashIndex = (hashIndex + 2) % 64;
                     
-                    if (p1.hp <= 0 || p2.hp <= 0) {
+                    // Check for battle end: death or 15 rounds (tie)
+                    const isTie = (p1.hp <= 0 && p2.hp <= 0) || round >= 15;
+                    
+                    if (p1.hp <= 0 || p2.hp <= 0 || round >= 15) {
                         clearInterval(matchInterval);
                         
                         let winner, loser;
-                        if (p1.hp <= 0 && p2.hp <= 0) {
-                            winner = p1.name;
-                            loser = p2.name;
-                            addLog(`${t.tie}!`, 'tie');
+                        if (isTie) {
+                            winner = p1.hp >= p2.hp ? p1.name : p2.name;
+                            loser = p1.hp >= p2.hp ? p2.name : p1.name;
+                            if (round >= 15) {
+                                addLog(`15回合平局! HP: ${p1.name}=${p1.hp} ${p2.name}=${p2.hp}`, 'tie');
+                            } else {
+                                addLog(`${t.tie}!`, 'tie');
+                            }
                             document.getElementById('player1Card').classList.add('tie');
                             document.getElementById('player2Card').classList.add('tie');
                         } else {

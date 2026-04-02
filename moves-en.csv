@@ -27,7 +27,7 @@ damage,move_name
 26,Cyclone Kick
 27,Tiger Tail Kick
 28,Flying Dragon Kick
-29,Bone Crusher Kick
+29,Bone Crusher
 30,Cloud Piercer
 31,Uppercut
 32,Undercut
@@ -38,7 +38,7 @@ damage,move_name
 37,Explosive Punch
 38,Meteor Punch
 39,Comet Punch
-40,Hundred Crack Punch
+40,Hundred Crack
 41,Rock Breaker
 42,Crag Breaker
 43,Vajra Fist
@@ -60,39 +60,39 @@ damage,move_name
 59,Drunken Fist
 60,Soft Palm
 61,Iron Sand Palm
-62,Heart Destroyer Palm
+62,Heart Destroyer
 63,Five Poison Palm
 64,Ice Palm
 65,Fire Palm
 66,Thunder Palm
-67,Purple Lightning Palm
+67,Purple Lightning
 68,Azure Palm
 69,Dark Palm
-70,Cloud Push Palm
+70,Cloud Push
 71,Wind God Leg
 72,Thunder God Leg
-73,Lightning God Leg
+73,Lightning Leg
 74,Snow God Leg
 75,Ice God Leg
 76,Flame Leg
-77,Earth Splitter Leg
-78,Heaven Breaker Leg
+77,Earth Splitter
+78,Heaven Breaker
 79,Heaven Scar Leg
 80,Shadowless Kick
-81,Mandarin Duck Leg
-82,Soul Hook Leg
-83,Throat Lock Leg
-84,Soul Cutter Leg
-85,Death Seeker Leg
-86,Wind Chaser Leg
-87,Lightning Leg
-88,Flame Leg
-89,Ice Leg
+81,Mandarin Duck
+82,Soul Hook
+83,Throat Lock
+84,Soul Cutter
+85,Death Seeker
+86,Wind Chaser
+87,Lightning Fast
+88,Flame Strike
+89,Ice Strike
 90,Golden Bell Shield
 91,Iron Cloth Armor
-92,Indestructible Body
+92,Indestructible
 93,Thirteen Champions
-94,Mixed Origin Kung
+94,Mixed Origin
 95,Yijin Jing
 96,Xisui Jing
 97,Nine Yang Divine
@@ -101,156 +101,156 @@ damage,move_name
 100,Star Absorbing
 101,Hua Gong
 102,Small Wuxiang
-103,Six Yang Melt Snow
-104,Eight Wastes Alone
+103,Six Yang Melt
+104,Eight Wastes
 105,Shenzhao Jing
 106,Taixuan Jing
-107,Jade Maiden Heart
-108,Wedding Clothes Divine
+107,Jade Maiden
+108,Wedding Divine
 109,Mingyu Gong
-110,独孤九剑
-111,辟邪剑法
-112,葵花宝典
-113,降龙十八掌
-114,打狗棒法
-115,九阴白骨爪
-116,六脉神剑
+110,Dugu Nine Sword
+111,Bixie Sword
+112,Sunflower Manual
+113,Dragon 18 Palms
+114,Dog Beating Staff
+115,Nine Yin Claw
+116,Six Pulse Sword
 117,One Yang Finger
 118,弹指神通
 119,天外飞仙
-120,万剑归宗
-121,万箭齐发
-122,排山倒海
-123,翻江倒海
-124,天崩地裂
-125,雷霆万钧
-126,电闪雷鸣
-127,风云变色
-128,天旋地转
-129,山崩海啸
-130,天罗地网
-131,天崩地裂
-132,defmodule
-133,defmodule
-134,defmodule
-135,defmodule
-136,defmodule
-137,defmodule
-138,defmodule
-139,defmodule
-140,defmodule
-141,defmodule
-142,defmodule
-143,defmodule
-144,defmodule
-145,defmodule
-146,defmodule
-147,defmodule
-148,defmodule
-149,defmodule
-150,defmodule
-151,defmodule
-152,defmodule
-153,defmodule
-154,defmodule
-155,defmodule
-156,defmodule
-157,defmodule
-158,defmodule
-159,defmodule
-160,defmodule
-161,defmodule
-162,defmodule
-163,defmodule
-164,defmodule
-165,defmodule
-166,defmodule
-167,defmodule
-168,defmodule
-169,defmodule
-170,defmodule
-171,defmodule
-172,defmodule
-173,defmodule
-174,defmodule
-175,defmodule
-176,defmodule
-177,defmodule
-178,defmodule
-179,defmodule
-180,defmodule
-181,defmodule
-182,defmodule
-183,defmodule
-184,defmodule
-185,defmodule
-186,defmodule
-187,defmodule
-188,defmodule
-189,defmodule
-190,defmodule
-191,defmodule
-192,defmodule
-193,defmodule
-194,defmodule
-195,defmodule
-196,defmodule
-197,defmodule
-198,defmodule
-199,defmodule
-200,defmodule
-201,defmodule
-202,defmodule
-203,defmodule
-204,defmodule
-205,defmodule
-206,defmodule
-207,defmodule
-208,defmodule
-209,defmodule
-210,defmodule
-211,defmodule
-212,defmodule
-213,defmodule
-214,defmodule
-215,defmodule
-216,defmodule
-217,defmodule
-218,defmodule
-219,defmodule
-220,defmodule
-221,defmodule
-222,defmodule
-223,defmodule
-224,defmodule
-225,defmodule
-226,defmodule
-227,defmodule
-228,defmodule
-229,defmodule
-230,defmodule
-231,defmodule
-232,defmodule
-233,defmodule
-234,defmodule
-235,defmodule
-236,defmodule
-237,defmodule
-238,defmodule
-239,defmodule
-240,defmodule
-241,defmodule
-242,defmodule
-243,defmodule
-244,defmodule
-245,defmodule
-246,defmodule
-247,defmodule
-248,defmodule
-249,defmodule
-250,defmodule
-251,defmodule
-252,defmodule
-253,defmodule
-254,defmodule
-255,defmodule
+120,Ten Thousand Swords
+121,Ten Thousand Arrows
+122,Mountain Push
+123,River Reverse
+124,Sky Collapse
+125,Thunder Force
+126,Lightning Storm
+127,Wind Cloud Change
+128,Sky Spin
+129,Mountain Sea Crash
+130,Heaven Earth Net
+131,Sky Collapse
+132,Ultimate Strike
+133,Final Judgment
+134,Cosmic Destruction
+135,Heavenly Fury
+136,Dragon Ascension
+137,Phoenix Rebirth
+138,Tiger Roar
+139,Bear Crush
+140,Eagle Dive
+141,Wolf Pack Attack
+142,Snake Coils
+143,Fox Trick
+144,Bear Slam
+145,Crane Wings
+146,Monkey King Staff
+147,Buddha Palm
+148,Demon Claw
+149,Ghost Steps
+150,Spirit Void
+151,Soul Reaper
+152,Death Wave
+153,Life Drain
+154,Blood Moon
+155,Dark Portal
+156,Holy Light
+157,Divine Shield
+158,Meteor Storm
+159,Blizzard
+160,Hurricane
+161,Earthquake
+162,Tsunami
+163,Volcano
+164,Meteor
+165,Supernova
+166,Black Hole
+167,Gravity Crush
+168,Time Stop
+169,Space Rift
+170,Dimension Slash
+171,Quantum Strike
+172,Plasma Blast
+173,Nova Burst
+174,Galaxy Crush
+175,Void Corruption
+176,Celestial Wrath
+177,Immortal Flame
+178,Phoenix Fire
+179,Dragon Breath
+180,Tiger Fury
+181,Lightning Emperor
+182,Thunder God Wrath
+183,Wind God Fury
+184,Fire God Rage
+185,Ice God Curse
+186,Thunder Emperor
+187,Lightning Lord
+188,Storm Master
+189,Tempest King
+190,Cyclone God
+191,Ultimate Move 191
+192,Ultimate Move 192
+193,Ultimate Move 193
+194,Ultimate Move 194
+195,Ultimate Move 195
+196,Ultimate Move 196
+197,Ultimate Move 197
+198,Ultimate Move 198
+199,Ultimate Move 199
+200,Ultimate Move 200
+201,Ultimate Move 201
+202,Ultimate Move 202
+203,Ultimate Move 203
+204,Ultimate Move 204
+205,Ultimate Move 205
+206,Ultimate Move 206
+207,Ultimate Move 207
+208,Ultimate Move 208
+209,Ultimate Move 209
+210,Ultimate Move 210
+211,Ultimate Move 211
+212,Ultimate Move 212
+213,Ultimate Move 213
+214,Ultimate Move 214
+215,Ultimate Move 215
+216,Ultimate Move 216
+217,Ultimate Move 217
+218,Ultimate Move 218
+219,Ultimate Move 219
+220,Ultimate Move 220
+221,Ultimate Move 221
+222,Ultimate Move 222
+223,Ultimate Move 223
+224,Ultimate Move 224
+225,Ultimate Move 225
+226,Ultimate Move 226
+227,Ultimate Move 227
+228,Ultimate Move 228
+229,Ultimate Move 229
+230,Ultimate Move 230
+231,Ultimate Move 231
+232,Ultimate Move 232
+233,Ultimate Move 233
+234,Ultimate Move 234
+235,Ultimate Move 235
+236,Ultimate Move 236
+237,Ultimate Move 237
+238,Ultimate Move 238
+239,Ultimate Move 239
+240,Ultimate Move 240
+241,Ultimate Move 241
+242,Ultimate Move 242
+243,Ultimate Move 243
+244,Ultimate Move 244
+245,Ultimate Move 245
+246,Ultimate Move 246
+247,Ultimate Move 247
+248,Ultimate Move 248
+249,Ultimate Move 249
+250,Ultimate Move 250
+251,Ultimate Move 251
+252,Ultimate Move 252
+253,Ultimate Move 253
+254,Ultimate Move 254
+255,Ultimate Move 255
