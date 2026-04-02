@@ -614,6 +614,8 @@
             document.getElementById('bracketTitle').textContent = lang === 'cn' ? '🏆 淘汰赛对阵图' : '🏆 Tournament Bracket';
             if (gameMode === 'duel') {
                 players = [...i18n[lang].defaultPlayers];
+                document.getElementById('player1').value = players[0];
+                document.getElementById('player2').value = players[1];
             }
             updatePlayerInputs();
         }
@@ -636,8 +638,8 @@
         
         function updatePlayerInputs() {
             const container = document.getElementById('playerInputs');
-            container.innerHTML = '';
             const t = i18n[language];
+            container.innerHTML = '';
             players.forEach((name, i) => {
                 const div = document.createElement('div');
                 div.className = 'player-input';
