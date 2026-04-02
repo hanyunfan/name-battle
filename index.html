@@ -550,6 +550,7 @@
         const i18n = {
             cn: {
                 title: '⚔️ 名字大战 ⚔️',
+                defaultPlayers: ['绝地武士', '圣斗士星矢'],
                 duel: '⚔️ 1v1 对决',
                 tournament: '🏆 淘汰赛',
                 players: '参赛选手',
@@ -573,6 +574,7 @@
             },
             en: {
                 title: '⚔️ Name Battle ⚔️',
+                defaultPlayers: ['Thor', 'Luke Skywalker'],
                 duel: '⚔️ 1v1 Duel',
                 tournament: '🏆 Tournament',
                 players: 'Players',
@@ -624,7 +626,7 @@
                 while (players.length < 4) players.push('');
             } else {
                 addBtn.style.display = 'none';
-                players = ['绝地武士', '圣斗士星矢'];
+                players = [...i18n[language].defaultPlayers];
             }
             updatePlayerInputs();
         }
@@ -731,7 +733,9 @@
             entry.className = `log-entry ${type}`;
             entry.textContent = message;
             container.appendChild(entry);
-            container.scrollTop = container.scrollHeight;
+            requestAnimationFrame(() => {
+                container.scrollTop = container.scrollHeight;
+            });
         }
         
         function clearLog(elementId) {
