@@ -11,19 +11,19 @@
             background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #16213e 100%);
             min-height: 100vh;
             color: #fff;
-            padding: 20px;
+            padding: 10px;
         }
         .container { max-width: 1100px; margin: 0 auto; }
         h1 {
             text-align: center;
-            font-size: 2.5rem;
+            font-size: 1.8rem;
             background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
-        .subtitle { text-align: center; color: #888; margin-bottom: 30px; font-size: 1.1rem; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 15px; font-size: 0.9rem; }
         
         .lang-toggle { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
         .lang-btn {
@@ -305,6 +305,55 @@
             color: #888;
             margin-bottom: 10px;
             font-size: 0.9rem;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            h1 { font-size: 1.5rem; }
+            .subtitle { font-size: 0.8rem; margin-bottom: 10px; }
+            .setup-panel { padding: 15px; }
+            .mode-selector { flex-direction: column; gap: 8px; }
+            .mode-btn { padding: 12px; font-size: 0.9rem; }
+            .player-inputs { grid-template-columns: 1fr; gap: 10px; }
+            .player-input input { font-size: 0.9rem; padding: 10px; }
+            .start-btn { padding: 14px; font-size: 1.1rem; }
+            
+            /* Tournament layout - stack vertically on mobile */
+            .tournament-view { flex-direction: column; gap: 15px; }
+            .battle-area, .bracket-area { width: 100%; min-width: unset; }
+            
+            /* VS container */
+            .vs-container { gap: 15px; }
+            .player-card { width: 140px; padding: 15px; }
+            .player-name { font-size: 1.1rem; }
+            .hp-text { font-size: 1rem; }
+            .vs-text { font-size: 1.5rem; }
+            .move-damage { font-size: 0.85rem; }
+            
+            /* Bracket */
+            .bracket-container { flex-wrap: nowrap; overflow-x: auto; gap: 10px; padding-bottom: 10px; }
+            .bracket-round { flex-shrink: 0; }
+            .bracket-match { min-width: 100px; padding: 8px; }
+            .bracket-player { font-size: 0.75rem; }
+            .bracket-vs { font-size: 0.65rem; }
+            
+            /* Battle log */
+            .battle-log { max-height: 200px; }
+            .log-entry { font-size: 0.8rem; padding: 6px 8px; }
+            
+            /* Champion popup */
+            .champion-content { padding: 30px; margin: 20px; }
+            .champion-name { font-size: 2rem; }
+            .champion-title { font-size: 1rem; }
+            .champion-congrats { font-size: 1rem; }
+        }
+        
+        @media (max-width: 400px) {
+            h1 { font-size: 1.3rem; }
+            .player-card { width: 120px; padding: 10px; }
+            .vs-text { font-size: 1.2rem; }
+            .player-name { font-size: 1rem; }
         }
     </style>
 </head>
