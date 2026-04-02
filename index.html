@@ -13,7 +13,7 @@
             color: #fff;
             padding: 20px;
         }
-        .container { max-width: 900px; margin: 0 auto; }
+        .container { max-width: 1100px; margin: 0 auto; }
         h1 {
             text-align: center;
             font-size: 2.5rem;
@@ -125,7 +125,6 @@
             letter-spacing: 3px;
         }
         .start-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255,107,107,0.4); }
-        .start-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
         
         .battle-arena { display: none; }
         .battle-arena.active { display: block; }
@@ -142,12 +141,26 @@
         }
         .back-btn:hover { background: rgba(255,255,255,0.2); }
         
+        /* Tournament layout */
+        .tournament-view {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+        .battle-area {
+            flex: 1;
+            min-width: 300px;
+        }
+        .bracket-area {
+            flex: 1;
+        }
+        
         .vs-container {
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 40px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
         }
         .player-card {
@@ -162,6 +175,7 @@
         .player-card.winner { border-color: #6bcb77; box-shadow: 0 0 30px rgba(107,203,119,0.3); }
         .player-card.loser { opacity: 0.5; border-color: #ff6b6b; }
         .player-card.tie { border-color: #ffd93d; }
+        .player-card.active { border-color: #4d96ff; box-shadow: 0 0 20px rgba(77,150,255,0.3); }
         .player-name { font-size: 1.5rem; font-weight: bold; margin-bottom: 15px; }
         .hp-bar-container {
             background: rgba(0,0,0,0.5);
@@ -195,7 +209,6 @@
             background: rgba(0,0,0,0.4);
             border-radius: 12px;
             padding: 20px;
-            margin-top: 20px;
             max-height: 300px;
             overflow-y: auto;
             border: 1px solid rgba(255,255,255,0.1);
@@ -214,44 +227,85 @@
         .log-entry.eliminated { color: #6bcb77; font-weight: bold; background: rgba(107,203,119,0.2); }
         .log-entry.winner { color: #ffd93d; font-weight: bold; background: rgba(255,217,61,0.2); }
         .log-entry.tie { color: #ffd93d; font-weight: bold; background: rgba(255,217,61,0.3); }
+        .log-entry.header { color: #888; font-style: italic; }
         
-        .champion-display {
-            display: none;
-            text-align: center;
-            padding: 40px;
-            background: linear-gradient(135deg, rgba(255,217,61,0.1), rgba(107,203,119,0.1));
-            border-radius: 20px;
-            border: 2px solid #ffd93d;
-            margin-bottom: 20px;
-        }
-        .champion-display.active { display: block; }
-        .champion-title { font-size: 1.2rem; color: #aaa; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 3px; }
-        .champion-name { font-size: 3rem; font-weight: bold; background: linear-gradient(90deg, #ffd93d, #ff6b6b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px; }
-        .champion-congrats { font-size: 1.5rem; color: #6bcb77; }
-        
-        .tournament-bracket { display: none; margin-bottom: 30px; }
-        .tournament-bracket.active { display: block; }
+        .tournament-bracket { }
         .bracket-title { text-align: center; font-size: 1.3rem; color: #ffd93d; margin-bottom: 20px; }
-        .bracket-container { display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; }
-        .bracket-round { display: flex; flex-direction: column; gap: 15px; }
-        .bracket-match { background: rgba(255,255,255,0.08); border-radius: 10px; padding: 15px; text-align: center; min-width: 150px; border: 1px solid rgba(255,255,255,0.1); }
+        .bracket-container { display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .bracket-round { display: flex; flex-direction: column; gap: 10px; }
+        .bracket-match {
+            background: rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            min-width: 140px;
+            border: 2px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .bracket-match:hover { border-color: rgba(255,255,255,0.3); transform: scale(1.02); }
         .bracket-match.completed { border-color: #6bcb77; }
-        .bracket-player { padding: 5px; font-size: 0.9rem; }
+        .bracket-match.current { border-color: #4d96ff; box-shadow: 0 0 15px rgba(77,150,255,0.3); }
+        .bracket-match.clickable { cursor: pointer; }
+        .bracket-player { padding: 4px; font-size: 0.85rem; }
         .bracket-player.winner { color: #6bcb77; font-weight: bold; }
         .bracket-player.loser { color: #666; text-decoration: line-through; }
         .bracket-player.pending { color: #888; }
         .bracket-player.bye { color: #4d96ff; font-style: italic; }
-        .bracket-vs { color: #ffd93d; font-size: 0.8rem; margin: 5px 0; }
+        .bracket-player.current-player { color: #ffd93d; }
+        .bracket-vs { color: #ffd93d; font-size: 0.75rem; margin: 3px 0; }
+        
+        .champion-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .champion-popup.active { display: flex; }
+        .champion-content {
+            background: linear-gradient(135deg, rgba(255,217,61,0.2), rgba(107,203,119,0.2));
+            border: 3px solid #ffd93d;
+            border-radius: 20px;
+            padding: 50px;
+            text-align: center;
+            animation: popupIn 0.5s ease;
+        }
+        @keyframes popupIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .champion-title { font-size: 1.5rem; color: #aaa; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 3px; }
+        .champion-name { font-size: 3.5rem; font-weight: bold; background: linear-gradient(90deg, #ffd93d, #ff6b6b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 15px; }
+        .champion-congrats { font-size: 1.5rem; color: #6bcb77; margin-bottom: 30px; }
+        .champion-close {
+            padding: 12px 30px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        .champion-close:hover { background: rgba(255,255,255,0.2); }
         
         .battle-progress { text-align: center; margin-bottom: 20px; }
         .round-counter { font-size: 1.2rem; color: #888; margin-bottom: 10px; }
         .progress-bar { background: rgba(255,255,255,0.1); border-radius: 10px; height: 8px; overflow: hidden; }
         .progress-fill { height: 100%; background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77); transition: width 0.3s; }
         
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
-        .shake { animation: shake 0.3s ease; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-        .pulse { animation: pulse 0.3s ease; }
+        .match-info {
+            text-align: center;
+            color: #888;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
@@ -282,47 +336,92 @@
         <div class="battle-arena" id="battleArena">
             <button class="back-btn" onclick="backToSetup()">← 返回</button>
             
-            <div class="tournament-bracket" id="tournamentBracket">
-                <div class="bracket-title" id="bracketTitle">🏆 淘汰赛对阵图</div>
-                <div class="bracket-container" id="bracketContainer"></div>
+            <!-- Champion Popup -->
+            <div class="champion-popup" id="championPopup">
+                <div class="champion-content">
+                    <div class="champion-title">🏆 冠军 🏆</div>
+                    <div class="champion-name" id="championName"></div>
+                    <div class="champion-congrats">🎉 恭喜获得最终胜利！🎉</div>
+                    <button class="champion-close" onclick="closeChampionPopup()">关闭</button>
+                </div>
             </div>
             
-            <div class="champion-display" id="championDisplay">
-                <div class="champion-title">🏆 冠军 🏆</div>
-                <div class="champion-name" id="championName"></div>
-                <div class="champion-congrats">🎉 恭喜获得最终胜利！🎉</div>
-            </div>
-            
-            <div class="vs-container" id="vsContainer">
-                <div class="player-card" id="player1Card">
-                    <div class="player-name" id="player1Name">选手1</div>
-                    <div class="hp-bar-container">
-                        <div class="hp-bar" id="player1HpBar"></div>
+            <!-- Tournament View -->
+            <div class="tournament-view" id="tournamentView">
+                <div class="battle-area">
+                    <div class="match-info" id="matchInfo"></div>
+                    <div class="vs-container" id="vsContainer">
+                        <div class="player-card" id="player1Card">
+                            <div class="player-name" id="player1Name">选手1</div>
+                            <div class="hp-bar-container">
+                                <div class="hp-bar" id="player1HpBar"></div>
+                            </div>
+                            <div class="hp-text"><span id="player1Hp">500</span> / 500 HP</div>
+                            <div class="move-damage" id="player1Move"></div>
+                        </div>
+                        <div class="vs-text">VS</div>
+                        <div class="player-card" id="player2Card">
+                            <div class="player-name" id="player2Name">选手2</div>
+                            <div class="hp-bar-container">
+                                <div class="hp-bar" id="player2HpBar"></div>
+                            </div>
+                            <div class="hp-text"><span id="player2Hp">500</span> / 500 HP</div>
+                            <div class="move-damage" id="player2Move"></div>
+                        </div>
                     </div>
-                    <div class="hp-text"><span id="player1Hp">500</span> / 500 HP</div>
-                    <div class="move-damage" id="player1Move"></div>
+                    
+                    <div class="battle-progress">
+                        <div class="round-counter" id="roundCounterText">回合: <span id="roundCounter">0</span></div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="battle-log" id="battleLog">
+                        <h3>⚔️ 战斗记录</h3>
+                        <div id="logContent"></div>
+                    </div>
+                </div>
+                
+                <div class="bracket-area">
+                    <div class="tournament-bracket" id="tournamentBracket">
+                        <div class="bracket-title" id="bracketTitle">🏆 淘汰赛对阵图</div>
+                        <div class="bracket-container" id="bracketContainer"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Duel View -->
+            <div class="vs-container" id="duelVsContainer" style="display:none">
+                <div class="player-card" id="duelPlayer1Card">
+                    <div class="player-name" id="duelPlayer1Name">选手1</div>
+                    <div class="hp-bar-container">
+                        <div class="hp-bar" id="duelPlayer1HpBar"></div>
+                    </div>
+                    <div class="hp-text"><span id="duelPlayer1Hp">500</span> / 500 HP</div>
+                    <div class="move-damage" id="duelPlayer1Move"></div>
                 </div>
                 <div class="vs-text">VS</div>
-                <div class="player-card" id="player2Card">
-                    <div class="player-name" id="player2Name">选手2</div>
+                <div class="player-card" id="duelPlayer2Card">
+                    <div class="player-name" id="duelPlayer2Name">选手2</div>
                     <div class="hp-bar-container">
-                        <div class="hp-bar" id="player2HpBar"></div>
+                        <div class="hp-bar" id="duelPlayer2HpBar"></div>
                     </div>
-                    <div class="hp-text"><span id="player2Hp">500</span> / 500 HP</div>
-                    <div class="move-damage" id="player2Move"></div>
+                    <div class="hp-text"><span id="duelPlayer2Hp">500</span> / 500 HP</div>
+                    <div class="move-damage" id="duelPlayer2Move"></div>
                 </div>
             </div>
             
-            <div class="battle-progress">
-                <div class="round-counter" id="roundCounterText">回合: <span id="roundCounter">0</span></div>
+            <div class="battle-progress" id="duelProgress" style="display:none">
+                <div class="round-counter" id="duelRoundCounterText">回合: <span id="duelRoundCounter">0</span></div>
                 <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
+                    <div class="progress-fill" id="duelProgressFill"></div>
                 </div>
             </div>
             
-            <div class="battle-log" id="battleLog">
+            <div class="battle-log" id="duelBattleLog" style="display:none">
                 <h3>⚔️ 战斗记录</h3>
-                <div id="logContent"></div>
+                <div id="duelLogContent"></div>
             </div>
         </div>
     </div>
@@ -334,6 +433,8 @@
         let battleInterval = null;
         let battleState = null;
         let bracketData = [];
+        let matchLogs = []; // Store logs for each match
+        let currentMatchKey = null;
         
         const MAX_HP = 500;
         const ROUND_INTERVAL = 1000;
@@ -400,7 +501,6 @@
         const i18n = {
             cn: {
                 title: '⚔️ 名字大战 ⚔️',
-                subtitle: '谁的招式更强？Whose name is stronger?',
                 duel: '⚔️ 1v1 对决',
                 tournament: '🏆 淘汰赛',
                 players: '参赛选手',
@@ -414,16 +514,16 @@
                 winner: '获胜',
                 loser: '失败',
                 tie: '平局',
-                eliminated: '被淘汰',
                 champion: '🏆 冠军 🏆',
                 congrats: '🎉 恭喜获得最终胜利！🎉',
                 roundLog: '对决开始',
                 advance: '晋级',
-                bye: '轮空晋级'
+                bye: '轮空',
+                clickToReplay: '点击回看',
+                roundName: ['决赛', '半决赛', '四分之一决赛', '八分之一决赛']
             },
             en: {
                 title: '⚔️ Name Battle ⚔️',
-                subtitle: 'Whose name is stronger? 谁的招式更强？',
                 duel: '⚔️ 1v1 Duel',
                 tournament: '🏆 Tournament',
                 players: 'Players',
@@ -437,12 +537,13 @@
                 winner: 'WINNER',
                 loser: 'DEFEATED',
                 tie: 'TIE',
-                eliminated: 'Eliminated',
                 champion: '🏆 CHAMPION 🏆',
                 congrats: '🎉 Congratulations! 🎉',
                 roundLog: 'Battle Begins',
                 advance: 'Advances',
-                bye: 'BYE'
+                bye: 'BYE',
+                clickToReplay: 'Click to replay',
+                roundName: ['Final', 'Semi-Final', 'Quarter-Final', '1/8 Final']
             }
         };
         
@@ -453,17 +554,13 @@
             });
             const t = i18n[lang];
             document.querySelector('h1').textContent = t.title;
-            document.querySelector('.subtitle').textContent = t.subtitle;
             document.querySelectorAll('.mode-btn')[0].textContent = t.duel;
             document.querySelectorAll('.mode-btn')[1].textContent = t.tournament;
             document.querySelector('.players-section h3').textContent = t.players;
             document.getElementById('startBtn').textContent = t.start;
             document.querySelector('.battle-log h3').textContent = t.battleLog;
             document.getElementById('addPlayerBtn').textContent = t.addPlayer;
-            document.querySelector('.champion-title').textContent = t.champion;
-            document.querySelector('.champion-congrats').textContent = t.congrats;
             document.getElementById('bracketTitle').textContent = lang === 'cn' ? '🏆 淘汰赛对阵图' : '🏆 Tournament Bracket';
-            document.getElementById('roundCounterText').innerHTML = `${t.round}: <span id="roundCounter">0</span>`;
             updatePlayerInputs();
         }
         
@@ -505,18 +602,11 @@
             }
         }
         
-        function isChinese(name) {
-            return /[\u4e00-\u9fa5]/.test(name);
-        }
-        
-        function getMoves(name) {
-            return isChinese(name) ? MOVES_CN : MOVES_EN;
-        }
-        
+        function isChinese(name) { return /[\u4e00-\u9fa5]/.test(name); }
+        function getMoves(name) { return isChinese(name) ? MOVES_CN : MOVES_EN; }
         function getMoveName(damage, playerName) {
             const moves = getMoves(playerName);
-            const index = (damage - 1) % moves.length;
-            return moves[index];
+            return moves[(damage - 1) % moves.length];
         }
         
         async function startBattle() {
@@ -536,138 +626,134 @@
             document.getElementById('setupPanel').style.display = 'none';
             document.getElementById('battleArena').classList.add('active');
             
+            matchLogs = [];
+            bracketData = [];
+            
             if (gameMode === 'tournament') {
+                document.getElementById('tournamentView').style.display = 'flex';
+                document.getElementById('duelVsContainer').style.display = 'none';
+                document.getElementById('duelProgress').style.display = 'none';
+                document.getElementById('duelBattleLog').style.display = 'none';
+                document.getElementById('championPopup').classList.remove('active');
                 await startTournament();
             } else {
+                document.getElementById('tournamentView').style.display = 'none';
+                document.getElementById('duelVsContainer').style.display = 'flex';
+                document.getElementById('duelProgress').style.display = 'block';
+                document.getElementById('duelBattleLog').style.display = 'block';
+                document.getElementById('championPopup').classList.remove('active');
                 await startDuel();
             }
         }
         
         function backToSetup() {
-            if (battleInterval) {
-                clearInterval(battleInterval);
-                battleInterval = null;
-            }
+            if (battleInterval) { clearInterval(battleInterval); battleInterval = null; }
             document.getElementById('battleArena').classList.remove('active');
             document.getElementById('setupPanel').style.display = 'block';
-            document.getElementById('championDisplay').classList.remove('active');
-            document.getElementById('tournamentBracket').classList.remove('active');
+            document.getElementById('championPopup').classList.remove('active');
         }
         
         async function sha256(message) {
             const msgBuffer = new TextEncoder().encode(message);
             const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
         }
         
         function getDamageFromHash(hash, index) {
             const useTwoDigits = index % 2 === 0;
-            let hexVal;
-            if (useTwoDigits && index + 1 < hash.length) {
-                hexVal = hash.substring(index, index + 2);
-            } else {
-                hexVal = hash.substring(index % hash.length, (index % hash.length) + 1);
-            }
+            let hexVal = useTwoDigits && index + 1 < hash.length 
+                ? hash.substring(index, index + 2) 
+                : hash.substring(index % hash.length, (index % hash.length) + 1);
             let damage = parseInt(hexVal, 16) % 100;
-            if (damage === 0) damage = Math.floor(Math.random() * 20) + 1;
-            return damage;
+            return damage === 0 ? Math.floor(Math.random() * 20) + 1 : damage;
         }
         
-        function createPlayer(name) {
-            return { name, hp: MAX_HP, hash: null };
+        function createPlayer(name) { return { name, hp: MAX_HP, hash: null }; }
+        
+        function setHpDisplay(prefix, hp) {
+            document.getElementById(`${prefix}Hp`).textContent = hp;
+            document.getElementById(`${prefix}HpBar`).style.width = `${(hp / MAX_HP) * 100}%`;
+            document.getElementById(`${prefix}HpBar`).classList.toggle('danger', hp < 150);
+        }
+        
+        function addLogToElement(elementId, message, type) {
+            const container = document.getElementById(elementId);
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = message;
+            container.appendChild(entry);
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function clearLog(elementId) {
+            document.getElementById(elementId).innerHTML = '';
         }
         
         async function startDuel() {
+            clearLog('duelLogContent');
             const p1 = createPlayer(players[0]);
             const p2 = createPlayer(players[1]);
             p1.hash = await sha256(p1.name);
             p2.hash = await sha256(p2.name);
             
-            document.getElementById('player1Name').textContent = p1.name;
-            document.getElementById('player2Name').textContent = p2.name;
-            document.getElementById('player1Hp').textContent = MAX_HP;
-            document.getElementById('player2Hp').textContent = MAX_HP;
-            document.getElementById('player1HpBar').style.width = '100%';
-            document.getElementById('player2HpBar').style.width = '100%';
-            document.getElementById('player1Move').textContent = '';
-            document.getElementById('player2Move').textContent = '';
-            document.getElementById('player1Card').classList.remove('winner', 'loser', 'tie');
-            document.getElementById('player2Card').classList.remove('winner', 'loser', 'tie');
-            document.getElementById('logContent').innerHTML = '';
-            document.getElementById('roundCounter').textContent = '0';
-            
-            document.getElementById('tournamentBracket').classList.remove('active');
-            document.getElementById('championDisplay').classList.remove('active');
-            document.getElementById('vsContainer').style.display = 'flex';
+            document.getElementById('duelPlayer1Name').textContent = p1.name;
+            document.getElementById('duelPlayer2Name').textContent = p2.name;
+            setHpDisplay('duelPlayer1', MAX_HP);
+            setHpDisplay('duelPlayer2', MAX_HP);
+            document.getElementById('duelPlayer1Move').textContent = '';
+            document.getElementById('duelPlayer2Move').textContent = '';
+            document.getElementById('duelPlayer1Card').classList.remove('winner', 'loser', 'tie');
+            document.getElementById('duelPlayer2Card').classList.remove('winner', 'loser', 'tie');
+            document.getElementById('duelRoundCounter').textContent = '0';
             
             battleState = { p1, p2, round: 0, hashIndex: 0 };
-            
             const t = i18n[language];
-            addLog(`${t.roundLog}: ${p1.name} VS ${p2.name}`, 'round');
+            addLogToElement('duelLogContent', `${t.roundLog}: ${p1.name} VS ${p2.name}`, 'round');
             
-            battleInterval = setInterval(runDuelRound, ROUND_INTERVAL);
+            battleInterval = setInterval(() => runDuelRound('duel'), ROUND_INTERVAL);
         }
         
-        function runDuelRound() {
+        function runDuelRound(prefix) {
             const { p1, p2, hashIndex } = battleState;
             battleState.round++;
             
             const damage1 = getDamageFromHash(p1.hash, hashIndex);
             const damage2 = getDamageFromHash(p2.hash, hashIndex);
-            
             p2.hp = Math.max(0, p2.hp - damage1);
             p1.hp = Math.max(0, p1.hp - damage2);
             
             const move1 = getMoveName(damage1, p1.name);
             const move2 = getMoveName(damage2, p2.name);
             
-            document.getElementById('player1Hp').textContent = p1.hp;
-            document.getElementById('player2Hp').textContent = p2.hp;
-            document.getElementById('player1HpBar').style.width = `${(p1.hp / MAX_HP) * 100}%`;
-            document.getElementById('player2HpBar').style.width = `${(p2.hp / MAX_HP) * 100}%`;
-            document.getElementById('player1Move').textContent = `${move2} -${damage2}`;
-            document.getElementById('player2Move').textContent = `${move1} -${damage1}`;
-            document.getElementById('player1HpBar').classList.toggle('danger', p1.hp < 150);
-            document.getElementById('player2HpBar').classList.toggle('danger', p2.hp < 150);
-            document.getElementById('roundCounter').textContent = battleState.round;
-            document.getElementById('progressFill').style.width = `${((MAX_HP - p1.hp) / MAX_HP) * 100}%`;
+            setHpDisplay('duelPlayer1', p1.hp);
+            setHpDisplay('duelPlayer2', p2.hp);
+            document.getElementById('duelPlayer1Move').textContent = `${move2} -${damage2}`;
+            document.getElementById('duelPlayer2Move').textContent = `${move1} -${damage1}`;
+            document.getElementById('duelRoundCounter').textContent = battleState.round;
+            document.getElementById('duelProgressFill').style.width = `${((MAX_HP - p1.hp) / MAX_HP) * 100}%`;
             
             const t = i18n[language];
-            addLog(`${t.round}: ${battleState.round} - ${p1.name} ${move1} → ${p2.name} -${damage1}`, 'attack');
-            addLog(`${t.round}: ${battleState.round} - ${p2.name} ${move2} → ${p1.name} -${damage2}`, 'attack');
+            addLogToElement('duelLogContent', `${t.round} ${battleState.round} - ${p1.name} ${move1} → ${p2.name} -${damage1}`, 'attack');
+            addLogToElement('duelLogContent', `${t.round} ${battleState.round} - ${p2.name} ${move2} → ${p1.name} -${damage2}`, 'attack');
             
             const isTie = (p1.hp <= 0 && p2.hp <= 0) || battleState.round >= MAX_ROUNDS;
             
             if (p1.hp <= 0 || p2.hp <= 0 || battleState.round >= MAX_ROUNDS) {
                 clearInterval(battleInterval);
                 battleInterval = null;
-                
-                const p1Card = document.getElementById('player1Card');
-                const p2Card = document.getElementById('player2Card');
+                const p1Card = document.getElementById('duelPlayer1Card');
+                const p2Card = document.getElementById('duelPlayer2Card');
                 
                 if (isTie) {
-                    if (battleState.round >= MAX_ROUNDS) {
-                        addLog(`💀 ${MAX_ROUNDS}${t.round} ${t.tie}! ${p1.name} HP: ${p1.hp}, ${p2.name} HP: ${p2.hp}`, 'tie');
-                    } else {
-                        addLog(`💀 ${t.tie}! ${p1.name} HP: ${p1.hp}, ${p2.name} HP: ${p2.hp}`, 'tie');
-                    }
+                    addLogToElement('duelLogContent', `💀 ${battleState.round >= MAX_ROUNDS ? MAX_ROUNDS + t.round : ''} ${t.tie}! HP: ${p1.hp} vs ${p2.hp}`, 'tie');
                     p1Card.classList.add('tie');
                     p2Card.classList.add('tie');
-                    document.getElementById('player1Move').textContent = t.tie;
-                    document.getElementById('player2Move').textContent = t.tie;
                 } else {
                     const winner = p1.hp > 0 ? p1 : p2;
                     const loser = p1.hp > 0 ? p2 : p1;
-                    addLog(`💀 ${loser.name} ${t.loser}!`, 'eliminated');
-                    addLog(`🏆 ${winner.name} ${t.winner}! HP: ${winner.hp}`, 'winner');
-                    if (winner === p1) {
-                        p1Card.classList.add('winner');
-                        p2Card.classList.add('loser');
-                    } else {
-                        p1Card.classList.add('loser');
-                        p2Card.classList.add('winner');
-                    }
+                    addLogToElement('duelLogContent', `🏆 ${winner.name} ${t.winner}! HP: ${winner.hp}`, 'winner');
+                    if (winner === p1) { p1Card.classList.add('winner'); p2Card.classList.add('loser'); }
+                    else { p1Card.classList.add('loser'); p2Card.classList.add('winner'); }
                 }
             }
             
@@ -675,128 +761,202 @@
         }
         
         async function startTournament() {
+            clearLog('logContent');
             let tournamentPlayers = [...players];
-            
-            // Pad to next power of 2
             let n = tournamentPlayers.length;
             let nextPow2 = 1;
             while (nextPow2 < n) nextPow2 *= 2;
-            while (tournamentPlayers.length < nextPow2) {
-                tournamentPlayers.push(null); // null = bye
-            }
+            while (tournamentPlayers.length < nextPow2) tournamentPlayers.push(null);
             
-            document.getElementById('tournamentBracket').classList.add('active');
-            document.getElementById('championDisplay').classList.remove('active');
-            document.getElementById('vsContainer').style.display = 'none';
-            
-            // Build bracket with byes
             bracketData = [];
+            matchLogs = [];
             let currentRound = [];
             for (let i = 0; i < tournamentPlayers.length; i += 2) {
                 const p1 = tournamentPlayers[i];
                 const p2 = tournamentPlayers[i + 1];
-                const match = { p1, p2, winner: null, bye: p1 && !p2 ? p1 : (!p1 && p2 ? p2 : null) };
-                currentRound.push(match);
+                currentRound.push({ p1, p2, winner: null, bye: p1 && !p2 ? p1 : (!p1 && p2 ? p2 : null) });
             }
             bracketData.push(currentRound);
             renderBracket();
-            
-            // Process first round (handle byes)
             await processRound();
         }
         
         async function processRound() {
             const currentRound = bracketData[bracketData.length - 1];
             
-            // Find matches that need to be played
-            let hasMatchesToPlay = false;
-            for (const match of currentRound) {
-                if (match.p1 && match.p2 && !match.winner) {
-                    hasMatchesToPlay = true;
-                    break;
-                }
-            }
+            // Check if all matches are decided
+            let hasMatchesToPlay = currentRound.some(m => m.p1 && m.p2 && !m.winner);
             
             if (!hasMatchesToPlay) {
-                // All matches decided, build next round
                 const winners = currentRound.map(m => m.bye || m.winner);
                 if (winners.length > 1) {
                     const nextRound = [];
                     for (let i = 0; i < winners.length; i += 2) {
-                        nextRound.push({ p1: winners[i], p2: winners[i + 1], winner: null, bye: winners[i] && !winners[i + 1] ? winners[i] : (!winners[i] && winners[i + 1] ? winners[i + 1] : null) });
+                        nextRound.push({ 
+                            p1: winners[i], p2: winners[i + 1], 
+                            winner: null, 
+                            bye: winners[i] && !winners[i + 1] ? winners[i] : (!winners[i] && winners[i + 1] ? winners[i + 1] : null) 
+                        });
                     }
                     bracketData.push(nextRound);
                     renderBracket();
                     await processRound();
                 } else if (winners.length === 1) {
-                    // Tournament complete!
                     showChampion(winners[0]);
                 }
                 return;
             }
             
-            // Play matches that need playing
             for (let i = 0; i < currentRound.length; i++) {
                 const match = currentRound[i];
                 if (match.p1 && match.p2 && !match.winner) {
-                    match.winner = await runMatch(match.p1, match.p2);
+                    match.winner = await runMatch(match.p1, match.p2, i);
                     renderBracket();
                 }
             }
             
-            // Wait a moment then check if we need more rounds
-            setTimeout(async () => {
-                await processRound();
-            }, 1500);
+            setTimeout(async () => { await processRound(); }, 1500);
+        }
+        
+        async function runMatch(p1Name, p2Name, matchIndex) {
+            if (!p1Name || !p2Name) return p1Name || p2Name;
+            
+            // Clear and setup battle area
+            clearLog('logContent');
+            document.getElementById('matchInfo').textContent = '';
+            document.getElementById('roundCounterText').innerHTML = `${i18n[language].round}: <span id="roundCounter">0</span>`;
+            document.getElementById('progressFill').style.width = '0%';
+            
+            const p1 = createPlayer(p1Name);
+            const p2 = createPlayer(p2Name);
+            
+            document.getElementById('player1Name').textContent = p1.name;
+            document.getElementById('player2Name').textContent = p2.name;
+            setHpDisplay('player1', MAX_HP);
+            setHpDisplay('player2', MAX_HP);
+            document.getElementById('player1Move').textContent = '';
+            document.getElementById('player2Move').textContent = '';
+            document.getElementById('player1Card').classList.remove('winner', 'loser', 'tie', 'active');
+            document.getElementById('player2Card').classList.remove('winner', 'loser', 'tie', 'active');
+            document.getElementById('player1Card').classList.add('active');
+            document.getElementById('player2Card').classList.add('active');
+            
+            p1.hash = await sha256(p1.name);
+            p2.hash = await sha256(p2.name);
+            
+            const t = i18n[language];
+            addLogToElement('logContent', `${t.roundLog}: ${p1.name} VS ${p2.name}`, 'round');
+            
+            // Store match log
+            const matchKey = `${p1Name}-vs-${p2Name}`;
+            matchLogs[matchKey] = [];
+            currentMatchKey = matchKey;
+            
+            let hashIndex = 0;
+            let round = 0;
+            
+            return new Promise((resolve) => {
+                battleInterval = setInterval(() => {
+                    round++;
+                    
+                    const damage1 = getDamageFromHash(p1.hash, hashIndex);
+                    const damage2 = getDamageFromHash(p2.hash, hashIndex);
+                    p2.hp = Math.max(0, p2.hp - damage1);
+                    p1.hp = Math.max(0, p1.hp - damage2);
+                    
+                    const move1 = getMoveName(damage1, p1.name);
+                    const move2 = getMoveName(damage2, p2.name);
+                    
+                    setHpDisplay('player1', p1.hp);
+                    setHpDisplay('player2', p2.hp);
+                    document.getElementById('player1Move').textContent = `${move2} -${damage2}`;
+                    document.getElementById('player2Move').textContent = `${move1} -${damage1}`;
+                    document.getElementById('roundCounter').textContent = round;
+                    document.getElementById('progressFill').style.width = `${((MAX_HP - p1.hp) / MAX_HP) * 100}%`;
+                    
+                    const logMsg1 = `${t.round} ${round}: ${p1.name} ${move1} → ${p2.name} -${damage1}`;
+                    const logMsg2 = `${t.round} ${round}: ${p2.name} ${move2} → ${p1.name} -${damage2}`;
+                    addLogToElement('logContent', logMsg1, 'attack');
+                    addLogToElement('logContent', logMsg2, 'attack');
+                    matchLogs[matchKey].push({ msg: logMsg1, type: 'attack' });
+                    matchLogs[matchKey].push({ msg: logMsg2, type: 'attack' });
+                    
+                    hashIndex = (hashIndex + 2) % 64;
+                    
+                    const isTie = (p1.hp <= 0 && p2.hp <= 0) || round >= MAX_ROUNDS;
+                    
+                    if (p1.hp <= 0 || p2.hp <= 0 || round >= MAX_ROUNDS) {
+                        clearInterval(battleInterval);
+                        battleInterval = null;
+                        
+                        let winner;
+                        if (isTie) {
+                            winner = p1.hp >= p2.hp ? p1.name : p2.name;
+                            const tieMsg = `💀 ${round >= MAX_ROUNDS ? MAX_ROUNDS + t.round : ''} ${t.tie}! HP: ${p1.hp} vs ${p2.hp}`;
+                            addLogToElement('logContent', tieMsg, 'tie');
+                            matchLogs[matchKey].push({ msg: tieMsg, type: 'tie' });
+                        } else {
+                            winner = p1.hp > 0 ? p1.name : p2.name;
+                            const winMsg = `🏆 ${winner} ${t.winner}!`;
+                            addLogToElement('logContent', winMsg, 'winner');
+                            matchLogs[matchKey].push({ msg: winMsg, type: 'winner' });
+                        }
+                        
+                        document.getElementById('player1Card').classList.remove('active');
+                        document.getElementById('player2Card').classList.remove('active');
+                        
+                        setTimeout(() => resolve(winner), 500);
+                    }
+                }, ROUND_INTERVAL);
+            });
         }
         
         function showChampion(name) {
-            const t = i18n[language];
             document.getElementById('championName').textContent = name;
-            document.getElementById('championDisplay').classList.add('active');
-            addLog(`🏆🏆🏆 ${name} ${t.winner}!!! ${t.congrats}`, 'winner');
+            document.getElementById('championPopup').classList.add('active');
+        }
+        
+        function closeChampionPopup() {
+            document.getElementById('championPopup').classList.remove('active');
         }
         
         function renderBracket() {
             const container = document.getElementById('bracketContainer');
             container.innerHTML = '';
             const t = i18n[language];
-            
-            // Round names from final to first
-            const roundNames = ['决赛', '半决赛', '四分之一决赛', '八分之一决赛', '十六分之一决赛', '三十二分之一决赛'];
+            const roundNames = t.roundName;
             
             bracketData.forEach((round, roundIdx) => {
                 const roundDiv = document.createElement('div');
                 roundDiv.className = 'bracket-round';
                 
                 const displayIdx = bracketData.length - 1 - roundIdx;
-                const roundName = roundNames[displayIdx] || `第${displayIdx + 1}轮`;
                 const nameDiv = document.createElement('div');
-                nameDiv.style.cssText = 'text-align:center;color:#ffd93d;margin-bottom:10px;font-size:0.9rem;';
-                nameDiv.textContent = roundName;
+                nameDiv.style.cssText = 'text-align:center;color:#ffd93d;margin-bottom:10px;font-size:0.85rem;';
+                nameDiv.textContent = roundNames[displayIdx] || `${displayIdx + 1}`;
                 roundDiv.appendChild(nameDiv);
                 
                 round.forEach((match, matchIdx) => {
                     const matchDiv = document.createElement('div');
                     matchDiv.className = 'bracket-match';
                     if (match.winner) matchDiv.classList.add('completed');
+                    if (match.bye) matchDiv.classList.add('completed');
                     
-                    let p1Class = 'pending';
-                    let p2Class = 'pending';
-                    let p1Text = match.p1 || '?';
-                    let p2Text = match.p2 || '?';
+                    // Determine if clickable to replay
+                    const matchKey = `${match.p1}-vs-${match.p2}`;
+                    const hasLog = matchLogs[matchKey] && matchLogs[matchKey].length > 0;
+                    if (hasLog && match.winner) {
+                        matchDiv.classList.add('clickable');
+                        matchDiv.title = t.clickToReplay;
+                        matchDiv.onclick = () => replayMatch(match.p1, match.p2);
+                    }
+                    
+                    let p1Class = 'pending', p2Class = 'pending';
+                    let p1Text = match.p1 || '?', p2Text = match.p2 || '?';
                     
                     if (match.bye) {
-                        // This match has a bye
-                        if (match.winner) {
-                            p1Class = match.winner === match.p1 ? 'winner' : 'loser';
-                            p2Class = match.winner === match.p2 ? 'winner' : 'loser';
-                        } else {
-                            p1Class = 'bye';
-                            p2Class = 'bye';
-                            p1Text = match.p1 || '?';
-                            p2Text = match.p2 || '?';
-                        }
+                        p1Class = 'bye'; p2Class = 'bye';
+                        p1Text = match.p1 || '?'; p2Text = match.p2 || '?';
                     } else if (match.winner) {
                         p1Class = match.winner === match.p1 ? 'winner' : 'loser';
                         p2Class = match.winner === match.p2 ? 'winner' : 'loser';
@@ -814,107 +974,24 @@
             });
         }
         
-        async function runMatch(p1Name, p2Name) {
-            if (!p1Name || !p2Name) {
-                return p1Name || p2Name;
-            }
+        function replayMatch(p1Name, p2Name) {
+            const matchKey = `${p1Name}-vs-${p2Name}`;
+            const logs = matchLogs[matchKey];
+            if (!logs) return;
             
-            return new Promise((resolve) => {
-                const p1 = createPlayer(p1Name);
-                const p2 = createPlayer(p2Name);
-                
-                document.getElementById('vsContainer').style.display = 'flex';
-                document.getElementById('player1Name').textContent = p1.name;
-                document.getElementById('player2Name').textContent = p2.name;
-                document.getElementById('player1Hp').textContent = MAX_HP;
-                document.getElementById('player2Hp').textContent = MAX_HP;
-                document.getElementById('player1HpBar').style.width = '100%';
-                document.getElementById('player2HpBar').style.width = '100%';
-                document.getElementById('player1Move').textContent = '';
-                document.getElementById('player2Move').textContent = '';
-                document.getElementById('player1Card').classList.remove('winner', 'loser', 'tie');
-                document.getElementById('player2Card').classList.remove('winner', 'loser', 'tie');
-                document.getElementById('logContent').innerHTML = '';
-                document.getElementById('roundCounter').textContent = '0';
-                document.getElementById('championDisplay').classList.remove('active');
-                
-                sha256(p1.name).then(h => { p1.hash = h; });
-                sha256(p2.name).then(h => { p2.hash = h; });
-                
-                const t = i18n[language];
-                addLog(`${t.roundLog}: ${p1.name} VS ${p2.name}`, 'round');
-                
-                let hashIndex = 0;
-                let round = 0;
-                
-                const matchInterval = setInterval(() => {
-                    round++;
-                    
-                    const damage1 = getDamageFromHash(p1.hash || '', hashIndex);
-                    const damage2 = getDamageFromHash(p2.hash || '', hashIndex);
-                    
-                    p2.hp = Math.max(0, p2.hp - damage1);
-                    p1.hp = Math.max(0, p1.hp - damage2);
-                    
-                    const move1 = getMoveName(damage1, p1.name);
-                    const move2 = getMoveName(damage2, p2.name);
-                    
-                    document.getElementById('player1Hp').textContent = p1.hp;
-                    document.getElementById('player2Hp').textContent = p2.hp;
-                    document.getElementById('player1HpBar').style.width = `${(p1.hp / MAX_HP) * 100}%`;
-                    document.getElementById('player2HpBar').style.width = `${(p2.hp / MAX_HP) * 100}%`;
-                    document.getElementById('player1Move').textContent = `${move2} -${damage2}`;
-                    document.getElementById('player2Move').textContent = `${move1} -${damage1}`;
-                    document.getElementById('player1HpBar').classList.toggle('danger', p1.hp < 150);
-                    document.getElementById('player2HpBar').classList.toggle('danger', p2.hp < 150);
-                    document.getElementById('roundCounter').textContent = round;
-                    
-                    addLog(`${t.round} ${round}: ${p1.name} ${move1} → ${p2.name} -${damage1}`, 'attack');
-                    addLog(`${t.round} ${round}: ${p2.name} ${move2} → ${p1.name} -${damage2}`, 'attack');
-                    
-                    hashIndex = (hashIndex + 2) % 64;
-                    
-                    const isTie = (p1.hp <= 0 && p2.hp <= 0) || round >= MAX_ROUNDS;
-                    
-                    if (p1.hp <= 0 || p2.hp <= 0 || round >= MAX_ROUNDS) {
-                        clearInterval(matchInterval);
-                        
-                        let winner;
-                        if (isTie) {
-                            winner = p1.hp >= p2.hp ? p1.name : p2.name;
-                            if (round >= MAX_ROUNDS) {
-                                addLog(`💀 ${MAX_ROUNDS}${t.round} ${t.tie}! HP: ${p1.name}=${p1.hp} ${p2.name}=${p2.hp}`, 'tie');
-                            } else {
-                                addLog(`💀 ${t.tie}!`, 'tie');
-                            }
-                        } else {
-                            winner = p1.hp > 0 ? p1.name : p2.name;
-                            const loser = p1.hp > 0 ? p2.name : p1.name;
-                            addLog(`💀 ${loser} ${t.loser}!`, 'eliminated');
-                            addLog(`✅ ${winner} ${t.advance}!`, 'winner');
-                        }
-                        
-                        if (winner === p1.name) {
-                            document.getElementById('player1Card').classList.add('winner');
-                            document.getElementById('player2Card').classList.add('loser');
-                        } else {
-                            document.getElementById('player1Card').classList.add('loser');
-                            document.getElementById('player2Card').classList.add('winner');
-                        }
-                        
-                        setTimeout(() => resolve(winner), 500);
-                    }
-                }, ROUND_INTERVAL);
+            clearLog('logContent');
+            document.getElementById('matchInfo').textContent = `${p1Name} VS ${p2Name} (回放)`;
+            
+            // Display stored logs
+            logs.forEach(log => {
+                addLogToElement('logContent', log.msg, log.type);
             });
-        }
-        
-        function addLog(message, type) {
-            const logContent = document.getElementById('logContent');
-            const entry = document.createElement('div');
-            entry.className = `log-entry ${type}`;
-            entry.textContent = message;
-            logContent.appendChild(entry);
-            logContent.scrollTop = logContent.scrollHeight;
+            
+            // Set final HP display based on winner
+            const lastLog = logs[logs.length - 1];
+            if (lastLog && lastLog.type === 'winner') {
+                // Extract winner from log
+            }
         }
         
         updatePlayerInputs();
