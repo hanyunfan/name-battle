@@ -612,6 +612,9 @@
             document.querySelector('.battle-log h3').textContent = t.battleLog;
             document.getElementById('addPlayerBtn').textContent = t.addPlayer;
             document.getElementById('bracketTitle').textContent = lang === 'cn' ? '🏆 淘汰赛对阵图' : '🏆 Tournament Bracket';
+            if (gameMode === 'duel') {
+                players = [...i18n[lang].defaultPlayers];
+            }
             updatePlayerInputs();
         }
         
