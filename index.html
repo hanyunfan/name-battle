@@ -25,13 +25,7 @@
         }
         .subtitle { text-align: center; color: #888; margin-bottom: 30px; font-size: 1.1rem; }
         
-        /* Language Toggle */
-        .lang-toggle {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
+        .lang-toggle { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
         .lang-btn {
             padding: 8px 20px;
             border: 2px solid rgba(255,255,255,0.2);
@@ -245,6 +239,7 @@
         .bracket-player { padding: 5px; font-size: 0.9rem; }
         .bracket-player.winner { color: #6bcb77; font-weight: bold; }
         .bracket-player.loser { color: #666; text-decoration: line-through; }
+        .bracket-player.pending { color: #888; }
         .bracket-vs { color: #ffd93d; font-size: 0.8rem; margin: 5px 0; }
         
         .battle-progress { text-align: center; margin-bottom: 20px; }
@@ -261,15 +256,13 @@
 <body>
     <div class="container">
         <h1>⚔️ 名字大战 ⚔️</h1>
-        <p class="subtitle">Name Battle - SHA256 Based Name Battle Game</p>
+        <p class="subtitle">谁的招式更强？Whose name is stronger?</p>
         
-        <!-- Language Toggle -->
         <div class="lang-toggle">
             <button class="lang-btn active" data-lang="cn" onclick="setLanguage('cn')">🇨🇳 中文</button>
             <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇺🇸 English</button>
         </div>
         
-        <!-- Setup Panel -->
         <div class="setup-panel" id="setupPanel">
             <div class="mode-selector">
                 <button class="mode-btn active" data-mode="duel" onclick="setMode('duel')">⚔️ 1v1 对决</button>
@@ -285,12 +278,11 @@
             <button class="start-btn" id="startBtn" onclick="startBattle()">开始战斗</button>
         </div>
         
-        <!-- Battle Arena -->
         <div class="battle-arena" id="battleArena">
             <button class="back-btn" onclick="backToSetup()">← 返回</button>
             
             <div class="tournament-bracket" id="tournamentBracket">
-                <div class="bracket-title">🏆 淘汰赛对阵图</div>
+                <div class="bracket-title" id="bracketTitle">🏆 淘汰赛对阵图</div>
                 <div class="bracket-container" id="bracketContainer"></div>
             </div>
             
@@ -321,7 +313,7 @@
             </div>
             
             <div class="battle-progress">
-                <div class="round-counter"><span id="roundCounter">0</span></div>
+                <div class="round-counter" id="roundCounterText">回合: <span id="roundCounter">0</span></div>
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
@@ -341,17 +333,78 @@
         let players = ['', ''];
         let battleInterval = null;
         let battleState = null;
-        let movesCN = {};
-        let movesEN = {};
+        let currentMatchIndex = 0;
+        let tournamentRound = 0;
+        let bracketData = [];
         
         const MAX_HP = 500;
         const ROUND_INTERVAL = 1000;
+        const MAX_ROUNDS = 15;
+        
+        // Embedded moves data (255 moves each)
+        const MOVES_CN = [
+            '轻抚','眨眼','挠痒','扇风','吹气','飘发','弹指','摇手','耸肩','踏步',
+            '拍掌','甩袖','膝顶','拳击','肘击','膝撞','掌推','扫腿','低踢','中踢',
+            '高踢','回旋踢','猛踢','连环踢','白鹤踢','旋风踢','虎尾踢','飞龙踢','碎骨踢','穿云踢',
+            '上勾拳','下勾拳','摆拳','日字冲拳','连环拳','铁锤拳','爆裂拳','流星拳','慧星拳','百裂拳',
+            '碎石拳','破岩拳','金刚拳','罗汉拳','太极拳','八卦掌','形意拳','八极拳','咏春拳','洪拳',
+            '螳螂拳','蛇拳','虎拳','龙拳','豹拳','鹤拳','狮拳','猴拳','醉拳','绵掌',
+            '铁砂掌','摧心掌','五毒掌','寒冰掌','烈火掌','天雷掌','紫电掌','青冥掌','玄冥掌','排云掌',
+            '风神腿','雷神腿','电神腿','雪神腿','冰神腿','火焰腿','裂地腿','破天腿','天残腿','无影脚',
+            '鸳鸯腿','勾魂腿','锁喉腿','断魂腿','夺命腿','追风腿','闪电腿','烈火腿','寒冰腿','金钟罩',
+            '铁布衫','金刚不坏','十三太保','混元功','易筋经','洗髓经','九阳神功','九阴真经','北冥神功','吸星大法',
+            '化功大法','小无相功','六阳融雪功','八荒六合唯我独尊功','神照经','太玄经','玉女心经','嫁衣神功','明玉功','独孤九剑',
+            '辟邪剑法','葵花宝典','降龙十八掌','打狗棒法','九阴白骨爪','六脉神剑','一阳指','弹指神通','天外飞仙','万剑归宗',
+            '万箭齐发','排山倒海','翻江倒海','天崩地裂','雷霆万钧','电闪雷鸣','风云变色','天旋地转','山崩海啸','天罗地网',
+            '绝招131','绝招132','绝招133','绝招134','绝招135','绝招136','绝招137','绝招138','绝招139','绝招140',
+            '绝招141','绝招142','绝招143','绝招144','绝招145','绝招146','绝招147','绝招148','绝招149','绝招150',
+            '绝招151','绝招152','绝招153','绝招154','绝招155','绝招156','绝招157','绝招158','绝招159','绝招160',
+            '绝招161','绝招162','绝招163','绝招164','绝招165','绝招166','绝招167','绝招168','绝招169','绝招170',
+            '绝招171','绝招172','绝招173','绝招174','绝招175','绝招176','绝招177','绝招178','绝招179','绝招180',
+            '绝招181','绝招182','绝招183','绝招184','绝招185','绝招186','绝招187','绝招188','绝招189','绝招190',
+            '绝招191','绝招192','绝招193','绝招194','绝招195','绝招196','绝招197','绝招198','绝招199','绝招200',
+            '绝招201','绝招202','绝招203','绝招204','绝招205','绝招206','绝招207','绝招208','绝招209','绝招210',
+            '绝招211','绝招212','绝招213','绝招214','绝招215','绝招216','绝招217','绝招218','绝招219','绝招220',
+            '绝招221','绝招222','绝招223','绝招224','绝招225','绝招226','绝招227','绝招228','绝招229','绝招230',
+            '绝招231','绝招232','绝招233','绝招234','绝招235','绝招236','绝招237','绝招238','绝招239','绝招240',
+            '绝招241','绝招242','绝招243','绝招244','绝招245','绝招246','绝招247','绝招248','绝招249','绝招250',
+            '绝招251','绝招252','绝招253','绝招254','绝招255'
+        ];
+        
+        const MOVES_EN = [
+            'Gentle Touch','Blink','Tickle','Fan','Blow','Hair Flip','Snap','Wave','Shrug','Step',
+            'Clap','Sleeve Flick','Knee Tap','Punch','Elbow Strike','Knee Strike','Palm Push','Sweep','Low Kick','Medium Kick',
+            'High Kick','Spinning Kick','Power Kick','Combo Kick','Crane Kick','Cyclone Kick','Tiger Tail Kick','Flying Dragon Kick','Bone Crusher','Cloud Piercer',
+            'Uppercut','Undercut','Swing Punch','Solar Punch','Rapid Punch','Hammer Fist','Explosive Punch','Meteor Punch','Comet Punch','Hundred Crack',
+            'Rock Breaker','Crag Breaker','Vajra Fist','Arhat Fist','Tai Chi Fist','Bagua Fist','Xingyi Fist','Baji Fist','Wing Chun Fist','Hung Fist',
+            'Mantis Fist','Snake Fist','Tiger Fist','Dragon Fist','Leopard Fist','Crane Fist','Lion Fist','Monkey Fist','Drunken Fist','Soft Palm',
+            'Iron Sand Palm','Heart Destroyer','Five Poison Palm','Ice Palm','Fire Palm','Thunder Palm','Purple Lightning','Azure Palm','Dark Palm','Cloud Push',
+            'Wind God Leg','Thunder God Leg','Lightning Leg','Snow God Leg','Ice God Leg','Flame Leg','Earth Splitter','Heaven Breaker','Heaven Scar Leg','Shadowless Kick',
+            'Mandarin Duck','Soul Hook','Throat Lock','Soul Cutter','Death Seeker','Wind Chaser','Lightning Fast','Flame Strike','Ice Strike','Golden Bell Shield',
+            'Iron Cloth Armor','Indestructible','Thirteen Champions','Mixed Origin','Yijin Jing','Xisui Jing','Nine Yang Divine','Nine Yin True','Beiming Divine','Star Absorbing',
+            'Hua Gong','Small Wuxiang','Six Yang Melt','Eight Wastes','Shenzhao Jing','Taixuan Jing','Jade Maiden','Wedding Divine','Mingyu Gong','Dugu Nine Sword',
+            'Bixie Sword','Sunflower Manual','Dragon 18 Palms','Dog Beating Staff','Nine Yin Claw','Six Pulse Sword','One Yang Finger','弹指神通','天外飞仙','Ten Thousand Swords',
+            'Ten Thousand Arrows','Mountain Push','River Reverse','Sky Collapse','Thunder Force','Lightning Storm','Wind Cloud Change','Sky Spin','Mountain Sea Crash','Heaven Earth Net',
+            'Ultimate Strike 131','Ultimate Strike 132','Ultimate Strike 133','Ultimate Strike 134','Ultimate Strike 135','Ultimate Strike 136','Ultimate Strike 137','Ultimate Strike 138','Ultimate Strike 139','Ultimate Strike 140',
+            'Ultimate Strike 141','Ultimate Strike 142','Ultimate Strike 143','Ultimate Strike 144','Ultimate Strike 145','Ultimate Strike 146','Ultimate Strike 147','Ultimate Strike 148','Ultimate Strike 149','Ultimate Strike 150',
+            'Ultimate Strike 151','Ultimate Strike 152','Ultimate Strike 153','Ultimate Strike 154','Ultimate Strike 155','Ultimate Strike 156','Ultimate Strike 157','Ultimate Strike 158','Ultimate Strike 159','Ultimate Strike 160',
+            'Ultimate Strike 161','Ultimate Strike 162','Ultimate Strike 163','Ultimate Strike 164','Ultimate Strike 165','Ultimate Strike 166','Ultimate Strike 167','Ultimate Strike 168','Ultimate Strike 169','Ultimate Strike 170',
+            'Ultimate Strike 171','Ultimate Strike 172','Ultimate Strike 173','Ultimate Strike 174','Ultimate Strike 175','Ultimate Strike 176','Ultimate Strike 177','Ultimate Strike 178','Ultimate Strike 179','Ultimate Strike 180',
+            'Ultimate Strike 181','Ultimate Strike 182','Ultimate Strike 183','Ultimate Strike 184','Ultimate Strike 185','Ultimate Strike 186','Ultimate Strike 187','Ultimate Strike 188','Ultimate Strike 189','Ultimate Strike 190',
+            'Ultimate Strike 191','Ultimate Strike 192','Ultimate Strike 193','Ultimate Strike 194','Ultimate Strike 195','Ultimate Strike 196','Ultimate Strike 197','Ultimate Strike 198','Ultimate Strike 199','Ultimate Strike 200',
+            'Ultimate Strike 201','Ultimate Strike 202','Ultimate Strike 203','Ultimate Strike 204','Ultimate Strike 205','Ultimate Strike 206','Ultimate Strike 207','Ultimate Strike 208','Ultimate Strike 209','Ultimate Strike 210',
+            'Ultimate Strike 211','Ultimate Strike 212','Ultimate Strike 213','Ultimate Strike 214','Ultimate Strike 215','Ultimate Strike 216','Ultimate Strike 217','Ultimate Strike 218','Ultimate Strike 219','Ultimate Strike 220',
+            'Ultimate Strike 221','Ultimate Strike 222','Ultimate Strike 223','Ultimate Strike 224','Ultimate Strike 225','Ultimate Strike 226','Ultimate Strike 227','Ultimate Strike 228','Ultimate Strike 229','Ultimate Strike 230',
+            'Ultimate Strike 231','Ultimate Strike 232','Ultimate Strike 233','Ultimate Strike 234','Ultimate Strike 235','Ultimate Strike 236','Ultimate Strike 237','Ultimate Strike 238','Ultimate Strike 239','Ultimate Strike 240',
+            'Ultimate Strike 241','Ultimate Strike 242','Ultimate Strike 243','Ultimate Strike 244','Ultimate Strike 245','Ultimate Strike 246','Ultimate Strike 247','Ultimate Strike 248','Ultimate Strike 249','Ultimate Strike 250',
+            'Ultimate Strike 251','Ultimate Strike 252','Ultimate Strike 253','Ultimate Strike 254','Ultimate Strike 255'
+        ];
         
         // Translations
         const i18n = {
             cn: {
                 title: '⚔️ 名字大战 ⚔️',
-                subtitle: 'SHA256 Based Name Battle Game',
+                subtitle: '谁的招式更强？Whose name is stronger?',
                 duel: '⚔️ 1v1 对决',
                 tournament: '🏆 淘汰赛',
                 players: '参赛选手',
@@ -371,11 +424,12 @@
                 roundLog: '对决开始',
                 advance: '晋级',
                 damage: '伤害',
-                move: '招式'
+                move: '招式',
+                roundText: '回合'
             },
             en: {
                 title: '⚔️ Name Battle ⚔️',
-                subtitle: 'SHA256 Based Name Battle Game',
+                subtitle: 'Whose name is stronger? 谁的招式更强？',
                 duel: '⚔️ 1v1 Duel',
                 tournament: '🏆 Tournament',
                 players: 'Players',
@@ -395,41 +449,10 @@
                 roundLog: 'Battle Begins',
                 advance: 'Advances',
                 damage: 'DMG',
-                move: 'Move'
+                move: 'Move',
+                roundText: 'Round'
             }
         };
-        
-        async function initMoves() {
-            // Load Chinese moves
-            try {
-                const cnResponse = await fetch('moves-cn.csv');
-                const cnText = await cnResponse.text();
-                cnText.split('\n').forEach((line, i) => {
-                    if (i === 0 || !line.trim()) return;
-                    const parts = line.split(',');
-                    if (parts.length >= 2) {
-                        const dmg = parseInt(parts[0]);
-                        const name = parts.slice(1).join(',');
-                        movesCN[dmg] = name;
-                    }
-                });
-            } catch (e) { console.log('Could not load moves-cn.csv'); }
-            
-            // Load English moves
-            try {
-                const enResponse = await fetch('moves-en.csv');
-                const enText = await enResponse.text();
-                enText.split('\n').forEach((line, i) => {
-                    if (i === 0 || !line.trim()) return;
-                    const parts = line.split(',');
-                    if (parts.length >= 2) {
-                        const dmg = parseInt(parts[0]);
-                        const name = parts.slice(1).join(',');
-                        movesEN[dmg] = name;
-                    }
-                });
-            } catch (e) { console.log('Could not load moves-en.csv'); }
-        }
         
         function setLanguage(lang) {
             language = lang;
@@ -447,7 +470,8 @@
             document.getElementById('addPlayerBtn').textContent = t.addPlayer;
             document.querySelector('.champion-title').textContent = t.champion;
             document.querySelector('.champion-congrats').textContent = t.congrats;
-            document.querySelector('.bracket-title').textContent = lang === 'cn' ? '🏆 淘汰赛对阵图' : '🏆 Tournament Bracket';
+            document.getElementById('bracketTitle').textContent = lang === 'cn' ? '🏆 淘汰赛对阵图' : '🏆 Tournament Bracket';
+            document.getElementById('roundCounterText').innerHTML = `${t.roundText}: <span id="roundCounter">0</span>`;
         }
         
         function setMode(mode) {
@@ -493,19 +517,13 @@
         }
         
         function getMoves(name) {
-            return isChinese(name) ? movesCN : movesEN;
+            return isChinese(name) ? MOVES_CN : MOVES_EN;
         }
         
         function getMoveName(damage, playerName) {
             const moves = getMoves(playerName);
-            if (moves[damage]) return moves[damage];
-            // Fallback: cycle through available moves
-            const keys = Object.keys(moves).map(Number);
-            if (keys.length === 0) return `Move #${damage}`;
-            const closest = keys.reduce((prev, curr) => 
-                Math.abs(curr - damage) < Math.abs(prev - damage) ? curr : prev
-            );
-            return moves[closest] || `Move #${damage}`;
+            const index = (damage - 1) % moves.length;
+            return moves[index];
         }
         
         async function startBattle() {
@@ -619,32 +637,30 @@
             document.getElementById('player2Hp').textContent = p2.hp;
             document.getElementById('player1HpBar').style.width = `${(p1.hp / MAX_HP) * 100}%`;
             document.getElementById('player2HpBar').style.width = `${(p2.hp / MAX_HP) * 100}%`;
-            document.getElementById('player1Move').textContent = `-${damage2} ${move2}`;
-            document.getElementById('player2Move').textContent = `-${damage1} ${move1}`;
+            document.getElementById('player1Move').textContent = `${move2} -${damage2}`;
+            document.getElementById('player2Move').textContent = `${move1} -${damage1}`;
             document.getElementById('player1HpBar').classList.toggle('danger', p1.hp < 150);
             document.getElementById('player2HpBar').classList.toggle('danger', p2.hp < 150);
             document.getElementById('roundCounter').textContent = battleState.round;
             document.getElementById('progressFill').style.width = `${((MAX_HP - p1.hp) / MAX_HP) * 100}%`;
             
             const t = i18n[language];
-            addLog(`回合 ${battleState.round}: ${p1.name} 使用 ${move1} 对 ${p2.name} 造成 ${damage1} 伤害`, 'attack');
-            addLog(`回合 ${battleState.round}: ${p2.name} 使用 ${move2} 对 ${p1.name} 造成 ${damage2} 伤害`, 'attack');
+            addLog(`${t.round}: ${battleState.round} - ${p1.name} ${move1} → ${p2.name} -${damage1}`, 'attack');
+            addLog(`${t.round}: ${battleState.round} - ${p2.name} ${move2} → ${p1.name} -${damage2}`, 'attack');
             
-            // Check for battle end: death or 15 rounds (tie)
-            if (p1.hp <= 0 || p2.hp <= 0 || battleState.round >= 15) {
+            // Check for battle end
+            const isTie = (p1.hp <= 0 && p2.hp <= 0) || battleState.round >= MAX_ROUNDS;
+            
+            if (p1.hp <= 0 || p2.hp <= 0 || battleState.round >= MAX_ROUNDS) {
                 clearInterval(battleInterval);
                 battleInterval = null;
                 
                 const p1Card = document.getElementById('player1Card');
                 const p2Card = document.getElementById('player2Card');
                 
-                // Tie conditions: both dead OR 15 rounds reached
-                const isTie = (p1.hp <= 0 && p2.hp <= 0) || battleState.round >= 15;
-                
                 if (isTie) {
-                    // Tie
-                    if (battleState.round >= 15) {
-                        addLog(`💀 15回合平局! ${p1.name} HP: ${p1.hp}, ${p2.name} HP: ${p2.hp}`, 'tie');
+                    if (battleState.round >= MAX_ROUNDS) {
+                        addLog(`💀 ${MAX_ROUNDS}${t.round} Tie! ${p1.name} HP: ${p1.hp}, ${p2.name} HP: ${p2.hp}`, 'tie');
                     } else {
                         addLog(`💀 ${t.tie}! ${p1.name} HP: ${p1.hp}, ${p2.name} HP: ${p2.hp}`, 'tie');
                     }
@@ -671,8 +687,8 @@
         }
         
         async function startTournament() {
-            const tournamentPlayers = [...players];
-            while (tournamentPlayers.length < tournamentPlayers.length || tournamentPlayers.length < 2) {
+            let tournamentPlayers = [...players];
+            while (tournamentPlayers.length < tournamentPlayers.length || (tournamentPlayers.length & (tournamentPlayers.length - 1)) !== 0 || tournamentPlayers.length < 2) {
                 if (tournamentPlayers.length >= 2 && (tournamentPlayers.length & (tournamentPlayers.length - 1)) === 0) break;
                 tournamentPlayers.push(null);
             }
@@ -681,44 +697,114 @@
             document.getElementById('championDisplay').classList.remove('active');
             document.getElementById('vsContainer').style.display = 'none';
             
-            let roundIndex = 0;
-            let currentRound = [];
+            // Build bracket structure
+            bracketData = [];
+            let round = [];
             for (let i = 0; i < tournamentPlayers.length; i += 2) {
-                currentRound.push({
+                round.push({
                     p1: tournamentPlayers[i],
                     p2: tournamentPlayers[i + 1],
-                    winner: null
+                    winner: null,
+                    completed: false
                 });
             }
+            bracketData.push(round);
             
-            while (currentRound.length >= 1) {
-                const nextRound = [];
-                for (let i = 0; i < currentRound.length; i += 2) {
-                    const match1 = currentRound[i];
-                    const match2 = currentRound[i + 1];
-                    if (!match1 || !match2) continue;
-                    
-                    const winner = await runMatch(match1.p1, match1.p2);
-                    const winner2 = await runMatch(match2.p1, match2.p2);
-                    
-                    const finalWinner = await runMatch(winner, winner2);
-                    
-                    nextRound.push({
-                        p1: finalWinner,
-                        p2: null,
-                        winner: finalWinner
-                    });
+            renderBracket();
+            
+            // Run tournament round by round
+            tournamentRound = 0;
+            await runTournamentRound();
+        }
+        
+        async function runTournamentRound() {
+            if (tournamentRound >= bracketData.length) return;
+            
+            const currentRound = bracketData[tournamentRound];
+            
+            // Run each match in this round sequentially
+            for (let i = 0; i < currentRound.length; i++) {
+                if (currentRound[i].p1 && currentRound[i].p2 && !currentRound[i].completed) {
+                    currentMatchIndex = i;
+                    const winner = await runMatch(currentRound[i].p1, currentRound[i].p2);
+                    currentRound[i].winner = winner;
+                    currentRound[i].completed = true;
+                    renderBracket();
                 }
-                
-                if (nextRound.length === 1) {
-                    const t = i18n[language];
-                    document.getElementById('championName').textContent = nextRound[0].p1;
-                    document.getElementById('championDisplay').classList.add('active');
-                }
-                
-                roundIndex++;
-                if (roundIndex > 10) break;
             }
+            
+            // Build next round
+            const nextRound = [];
+            for (let i = 0; i < currentRound.length; i += 2) {
+                const m1 = currentRound[i];
+                const m2 = currentRound[i + 1];
+                if (m1 && m2) {
+                    nextRound.push({
+                        p1: m1.winner,
+                        p2: m2.winner,
+                        winner: null,
+                        completed: false
+                    });
+                } else if (m1 && !m2) {
+                    nextRound.push({ p1: m1.winner, p2: null, winner: m1.winner, completed: true });
+                } else if (m2 && !m1) {
+                    nextRound.push({ p1: m2.winner, p2: null, winner: m2.winner, completed: true });
+                }
+            }
+            
+            if (nextRound.length > 1) {
+                bracketData.push(nextRound);
+                tournamentRound++;
+                // Wait a moment then run next round
+                setTimeout(() => runTournamentRound(), 1500);
+            } else if (nextRound.length === 1) {
+                // Tournament complete!
+                const t = i18n[language];
+                document.getElementById('championName').textContent = nextRound[0].winner;
+                document.getElementById('championDisplay').classList.add('active');
+            }
+        }
+        
+        function renderBracket() {
+            const container = document.getElementById('bracketContainer');
+            container.innerHTML = '';
+            
+            const roundNames = language === 'cn' 
+                ? ['决赛', '半决赛', '四分之一决赛', '八分之一决赛', '十六分之一决赛']
+                : ['Final', 'Semi-Final', 'Quarter-Final', '1/8 Final', '1/16 Final'];
+            
+            // Reverse to show earliest round first
+            const reversedBracket = [...bracketData].reverse();
+            const reversedRoundNames = [...roundNames].reverse();
+            
+            reversedBracket.forEach((round, roundIdx) => {
+                const roundDiv = document.createElement('div');
+                roundDiv.className = 'bracket-round';
+                
+                const roundName = reversedRoundNames[roundIdx] || `Round ${roundIdx + 1}`;
+                const nameDiv = document.createElement('div');
+                nameDiv.style.cssText = 'text-align:center;color:#ffd93d;margin-bottom:10px;font-size:0.9rem;';
+                nameDiv.textContent = roundName;
+                roundDiv.appendChild(nameDiv);
+                
+                round.forEach((match, matchIdx) => {
+                    const matchDiv = document.createElement('div');
+                    matchDiv.className = 'bracket-match';
+                    if (match.completed) matchDiv.classList.add('completed');
+                    
+                    const p1Class = match.winner === match.p1 ? 'winner' : (match.completed ? 'loser' : 'pending');
+                    const p2Class = match.winner === match.p2 ? 'winner' : (match.completed ? 'loser' : 'pending');
+                    
+                    matchDiv.innerHTML = `
+                        <div class="bracket-player ${p1Class}">${match.p1 || '?'}</div>
+                        <div class="bracket-vs">VS</div>
+                        <div class="bracket-player ${p2Class}">${match.p2 || '?'}</div>
+                    `;
+                    roundDiv.appendChild(matchDiv);
+                });
+                
+                container.appendChild(roundDiv);
+            });
         }
         
         async function runMatch(p1Name, p2Name) {
@@ -771,31 +857,30 @@
                     document.getElementById('player2Hp').textContent = p2.hp;
                     document.getElementById('player1HpBar').style.width = `${(p1.hp / MAX_HP) * 100}%`;
                     document.getElementById('player2HpBar').style.width = `${(p2.hp / MAX_HP) * 100}%`;
-                    document.getElementById('player1Move').textContent = `-${damage2} ${move2}`;
-                    document.getElementById('player2Move').textContent = `-${damage1} ${move1}`;
+                    document.getElementById('player1Move').textContent = `${move2} -${damage2}`;
+                    document.getElementById('player2Move').textContent = `${move1} -${damage1}`;
                     document.getElementById('player1HpBar').classList.toggle('danger', p1.hp < 150);
                     document.getElementById('player2HpBar').classList.toggle('danger', p2.hp < 150);
                     document.getElementById('roundCounter').textContent = round;
                     
-                    addLog(`回合 ${round}: ${p1.name} 使用 ${move1} 造成 ${damage1}`, 'attack');
-                    addLog(`回合 ${round}: ${p2.name} 使用 ${move2} 造成 ${damage2}`, 'attack');
+                    addLog(`${t.round} ${round}: ${p1.name} ${move1} → ${p2.name} -${damage1}`, 'attack');
+                    addLog(`${t.round} ${round}: ${p2.name} ${move2} → ${p1.name} -${damage2}`, 'attack');
                     
                     hashIndex = (hashIndex + 2) % 64;
                     
-                    // Check for battle end: death or 15 rounds (tie)
-                    const isTie = (p1.hp <= 0 && p2.hp <= 0) || round >= 15;
+                    const isTie = (p1.hp <= 0 && p2.hp <= 0) || round >= MAX_ROUNDS;
                     
-                    if (p1.hp <= 0 || p2.hp <= 0 || round >= 15) {
+                    if (p1.hp <= 0 || p2.hp <= 0 || round >= MAX_ROUNDS) {
                         clearInterval(matchInterval);
                         
                         let winner, loser;
                         if (isTie) {
                             winner = p1.hp >= p2.hp ? p1.name : p2.name;
                             loser = p1.hp >= p2.hp ? p2.name : p1.name;
-                            if (round >= 15) {
-                                addLog(`15回合平局! HP: ${p1.name}=${p1.hp} ${p2.name}=${p2.hp}`, 'tie');
+                            if (round >= MAX_ROUNDS) {
+                                addLog(`💀 ${MAX_ROUNDS}${t.round} Tie! HP: ${p1.name}=${p1.hp} ${p2.name}=${p2.hp}`, 'tie');
                             } else {
-                                addLog(`${t.tie}!`, 'tie');
+                                addLog(`💀 ${t.tie}!`, 'tie');
                             }
                             document.getElementById('player1Card').classList.add('tie');
                             document.getElementById('player2Card').classList.add('tie');
@@ -829,7 +914,6 @@
         }
         
         // Initialize
-        initMoves();
         updatePlayerInputs();
     </script>
 </body>
