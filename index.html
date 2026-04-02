@@ -240,6 +240,7 @@
         .bracket-player.winner { color: #6bcb77; font-weight: bold; }
         .bracket-player.loser { color: #666; text-decoration: line-through; }
         .bracket-player.pending { color: #888; }
+        .bracket-player.bye { color: #4d96ff; font-style: italic; }
         .bracket-vs { color: #ffd93d; font-size: 0.8rem; margin: 5px 0; }
         
         .battle-progress { text-align: center; margin-bottom: 20px; }
@@ -327,21 +328,17 @@
     </div>
     
     <script>
-        // Game State
         let gameMode = 'duel';
         let language = 'cn';
-        let players = ['', ''];
+        let players = ['绝地武士', '圣斗士星矢'];
         let battleInterval = null;
         let battleState = null;
-        let currentMatchIndex = 0;
-        let tournamentRound = 0;
         let bracketData = [];
         
         const MAX_HP = 500;
         const ROUND_INTERVAL = 1000;
         const MAX_ROUNDS = 15;
         
-        // Embedded moves data (255 moves each)
         const MOVES_CN = [
             '轻抚','眨眼','挠痒','扇风','吹气','飘发','弹指','摇手','耸肩','踏步',
             '拍掌','甩袖','膝顶','拳击','肘击','膝撞','掌推','扫腿','低踢','中踢',
@@ -400,7 +397,6 @@
             'Ultimate Strike 251','Ultimate Strike 252','Ultimate Strike 253','Ultimate Strike 254','Ultimate Strike 255'
         ];
         
-        // Translations
         const i18n = {
             cn: {
                 title: '⚔️ 名字大战 ⚔️',
@@ -423,9 +419,7 @@
                 congrats: '🎉 恭喜获得最终胜利！🎉',
                 roundLog: '对决开始',
                 advance: '晋级',
-                damage: '伤害',
-                move: '招式',
-                roundText: '回合'
+                bye: '轮空晋级'
             },
             en: {
                 title: '⚔️ Name Battle ⚔️',
@@ -448,9 +442,7 @@
                 congrats: '🎉 Congratulations! 🎉',
                 roundLog: 'Battle Begins',
                 advance: 'Advances',
-                damage: 'DMG',
-                move: 'Move',
-                roundText: 'Round'
+                bye: 'BYE'
             }
         };
         
@@ -471,7 +463,8 @@
             document.querySelector('.champion-title').textContent = t.champion;
             document.querySelector('.champion-congrats').textContent = t.congrats;
             document.getElementById('bracketTitle').textContent = lang === 'cn' ? '🏆 淘汰赛对阵图' : '🏆 Tournament Bracket';
-            document.getElementById('roundCounterText').innerHTML = `${t.roundText}: <span id="roundCounter">0</span>`;
+            document.getElementById('roundCounterText').innerHTML = `${t.round}: <span id="roundCounter">0</span>`;
+            updatePlayerInputs();
         }
         
         function setMode(mode) {
@@ -485,7 +478,7 @@
                 while (players.length < 4) players.push('');
             } else {
                 addBtn.style.display = 'none';
-                players = ['', ''];
+                players = ['绝地武士', '圣斗士星矢'];
             }
             updatePlayerInputs();
         }
@@ -535,12 +528,8 @@
             }
             players = players.filter(p => p !== '');
             
-            if (gameMode === 'duel' && players.length < 2) {
+            if (players.length < 2) {
                 alert(language === 'cn' ? '请输入至少2个选手的名字！' : 'Please enter at least 2 player names!');
-                return;
-            }
-            if (gameMode === 'tournament' && players.length < 2) {
-                alert(language === 'cn' ? '淘汰赛至少需要2个选手！' : 'Tournament needs at least 2 players!');
                 return;
             }
             
@@ -648,7 +637,6 @@
             addLog(`${t.round}: ${battleState.round} - ${p1.name} ${move1} → ${p2.name} -${damage1}`, 'attack');
             addLog(`${t.round}: ${battleState.round} - ${p2.name} ${move2} → ${p1.name} -${damage2}`, 'attack');
             
-            // Check for battle end
             const isTie = (p1.hp <= 0 && p2.hp <= 0) || battleState.round >= MAX_ROUNDS;
             
             if (p1.hp <= 0 || p2.hp <= 0 || battleState.round >= MAX_ROUNDS) {
@@ -660,7 +648,7 @@
                 
                 if (isTie) {
                     if (battleState.round >= MAX_ROUNDS) {
-                        addLog(`💀 ${MAX_ROUNDS}${t.round} Tie! ${p1.name} HP: ${p1.hp}, ${p2.name} HP: ${p2.hp}`, 'tie');
+                        addLog(`💀 ${MAX_ROUNDS}${t.round} ${t.tie}! ${p1.name} HP: ${p1.hp}, ${p2.name} HP: ${p2.hp}`, 'tie');
                     } else {
                         addLog(`💀 ${t.tie}! ${p1.name} HP: ${p1.hp}, ${p2.name} HP: ${p2.hp}`, 'tie');
                     }
@@ -688,100 +676,101 @@
         
         async function startTournament() {
             let tournamentPlayers = [...players];
-            while (tournamentPlayers.length < tournamentPlayers.length || (tournamentPlayers.length & (tournamentPlayers.length - 1)) !== 0 || tournamentPlayers.length < 2) {
-                if (tournamentPlayers.length >= 2 && (tournamentPlayers.length & (tournamentPlayers.length - 1)) === 0) break;
-                tournamentPlayers.push(null);
+            
+            // Pad to next power of 2
+            let n = tournamentPlayers.length;
+            let nextPow2 = 1;
+            while (nextPow2 < n) nextPow2 *= 2;
+            while (tournamentPlayers.length < nextPow2) {
+                tournamentPlayers.push(null); // null = bye
             }
             
             document.getElementById('tournamentBracket').classList.add('active');
             document.getElementById('championDisplay').classList.remove('active');
             document.getElementById('vsContainer').style.display = 'none';
             
-            // Build bracket structure
+            // Build bracket with byes
             bracketData = [];
-            let round = [];
+            let currentRound = [];
             for (let i = 0; i < tournamentPlayers.length; i += 2) {
-                round.push({
-                    p1: tournamentPlayers[i],
-                    p2: tournamentPlayers[i + 1],
-                    winner: null,
-                    completed: false
-                });
+                const p1 = tournamentPlayers[i];
+                const p2 = tournamentPlayers[i + 1];
+                const match = { p1, p2, winner: null, bye: p1 && !p2 ? p1 : (!p1 && p2 ? p2 : null) };
+                currentRound.push(match);
             }
-            bracketData.push(round);
-            
+            bracketData.push(currentRound);
             renderBracket();
             
-            // Run tournament round by round
-            tournamentRound = 0;
-            await runTournamentRound();
+            // Process first round (handle byes)
+            await processRound();
         }
         
-        async function runTournamentRound() {
-            if (tournamentRound >= bracketData.length) return;
+        async function processRound() {
+            const currentRound = bracketData[bracketData.length - 1];
             
-            const currentRound = bracketData[tournamentRound];
+            // Find matches that need to be played
+            let hasMatchesToPlay = false;
+            for (const match of currentRound) {
+                if (match.p1 && match.p2 && !match.winner) {
+                    hasMatchesToPlay = true;
+                    break;
+                }
+            }
             
-            // Run each match in this round sequentially
+            if (!hasMatchesToPlay) {
+                // All matches decided, build next round
+                const winners = currentRound.map(m => m.bye || m.winner);
+                if (winners.length > 1) {
+                    const nextRound = [];
+                    for (let i = 0; i < winners.length; i += 2) {
+                        nextRound.push({ p1: winners[i], p2: winners[i + 1], winner: null, bye: winners[i] && !winners[i + 1] ? winners[i] : (!winners[i] && winners[i + 1] ? winners[i + 1] : null) });
+                    }
+                    bracketData.push(nextRound);
+                    renderBracket();
+                    await processRound();
+                } else if (winners.length === 1) {
+                    // Tournament complete!
+                    showChampion(winners[0]);
+                }
+                return;
+            }
+            
+            // Play matches that need playing
             for (let i = 0; i < currentRound.length; i++) {
-                if (currentRound[i].p1 && currentRound[i].p2 && !currentRound[i].completed) {
-                    currentMatchIndex = i;
-                    const winner = await runMatch(currentRound[i].p1, currentRound[i].p2);
-                    currentRound[i].winner = winner;
-                    currentRound[i].completed = true;
+                const match = currentRound[i];
+                if (match.p1 && match.p2 && !match.winner) {
+                    match.winner = await runMatch(match.p1, match.p2);
                     renderBracket();
                 }
             }
             
-            // Build next round
-            const nextRound = [];
-            for (let i = 0; i < currentRound.length; i += 2) {
-                const m1 = currentRound[i];
-                const m2 = currentRound[i + 1];
-                if (m1 && m2) {
-                    nextRound.push({
-                        p1: m1.winner,
-                        p2: m2.winner,
-                        winner: null,
-                        completed: false
-                    });
-                } else if (m1 && !m2) {
-                    nextRound.push({ p1: m1.winner, p2: null, winner: m1.winner, completed: true });
-                } else if (m2 && !m1) {
-                    nextRound.push({ p1: m2.winner, p2: null, winner: m2.winner, completed: true });
-                }
-            }
-            
-            if (nextRound.length > 1) {
-                bracketData.push(nextRound);
-                tournamentRound++;
-                // Wait a moment then run next round
-                setTimeout(() => runTournamentRound(), 1500);
-            } else if (nextRound.length === 1) {
-                // Tournament complete!
-                const t = i18n[language];
-                document.getElementById('championName').textContent = nextRound[0].winner;
-                document.getElementById('championDisplay').classList.add('active');
-            }
+            // Wait a moment then check if we need more rounds
+            setTimeout(async () => {
+                await processRound();
+            }, 1500);
+        }
+        
+        function showChampion(name) {
+            const t = i18n[language];
+            document.getElementById('championName').textContent = name;
+            document.getElementById('championDisplay').classList.add('active');
+            addLog(`🏆🏆🏆 ${name} ${t.winner}!!! ${t.congrats}`, 'winner');
         }
         
         function renderBracket() {
             const container = document.getElementById('bracketContainer');
             container.innerHTML = '';
+            const t = i18n[language];
             
-            const roundNames = language === 'cn' 
-                ? ['决赛', '半决赛', '四分之一决赛', '八分之一决赛', '十六分之一决赛']
-                : ['Final', 'Semi-Final', 'Quarter-Final', '1/8 Final', '1/16 Final'];
+            // Round names from final to first
+            const roundNames = ['决赛', '半决赛', '四分之一决赛', '八分之一决赛', '十六分之一决赛', '三十二分之一决赛'];
             
-            // Reverse to show earliest round first
-            const reversedBracket = [...bracketData].reverse();
-            const reversedRoundNames = [...roundNames].reverse();
-            
-            reversedBracket.forEach((round, roundIdx) => {
+            bracketData.forEach((round, roundIdx) => {
                 const roundDiv = document.createElement('div');
                 roundDiv.className = 'bracket-round';
                 
-                const roundName = reversedRoundNames[roundIdx] || `Round ${roundIdx + 1}`;
+                const displayIdx = bracketData.length - 1 - roundIdx;
+                const roundName = roundNames[displayIdx] || `第${displayIdx + 1}轮`;
                 const nameDiv = document.createElement('div');
                 nameDiv.style.cssText = 'text-align:center;color:#ffd93d;margin-bottom:10px;font-size:0.9rem;';
                 nameDiv.textContent = roundName;
@@ -790,15 +779,33 @@
                 round.forEach((match, matchIdx) => {
                     const matchDiv = document.createElement('div');
                     matchDiv.className = 'bracket-match';
-                    if (match.completed) matchDiv.classList.add('completed');
+                    if (match.winner) matchDiv.classList.add('completed');
                     
-                    const p1Class = match.winner === match.p1 ? 'winner' : (match.completed ? 'loser' : 'pending');
-                    const p2Class = match.winner === match.p2 ? 'winner' : (match.completed ? 'loser' : 'pending');
+                    let p1Class = 'pending';
+                    let p2Class = 'pending';
+                    let p1Text = match.p1 || '?';
+                    let p2Text = match.p2 || '?';
+                    
+                    if (match.bye) {
+                        // This match has a bye
+                        if (match.winner) {
+                            p1Class = match.winner === match.p1 ? 'winner' : 'loser';
+                            p2Class = match.winner === match.p2 ? 'winner' : 'loser';
+                        } else {
+                            p1Class = 'bye';
+                            p2Class = 'bye';
+                            p1Text = match.p1 || '?';
+                            p2Text = match.p2 || '?';
+                        }
+                    } else if (match.winner) {
+                        p1Class = match.winner === match.p1 ? 'winner' : 'loser';
+                        p2Class = match.winner === match.p2 ? 'winner' : 'loser';
+                    }
                     
                     matchDiv.innerHTML = `
-                        <div class="bracket-player ${p1Class}">${match.p1 || '?'}</div>
+                        <div class="bracket-player ${p1Class}">${p1Text}</div>
                         <div class="bracket-vs">VS</div>
-                        <div class="bracket-player ${p2Class}">${match.p2 || '?'}</div>
+                        <div class="bracket-player ${p2Class}">${p2Text}</div>
                     `;
                     roundDiv.appendChild(matchDiv);
                 });
@@ -808,12 +815,11 @@
         }
         
         async function runMatch(p1Name, p2Name) {
+            if (!p1Name || !p2Name) {
+                return p1Name || p2Name;
+            }
+            
             return new Promise((resolve) => {
-                if (!p1Name || !p2Name) {
-                    resolve(p1Name || p2Name);
-                    return;
-                }
-                
                 const p1 = createPlayer(p1Name);
                 const p2 = createPlayer(p2Name);
                 
@@ -873,32 +879,30 @@
                     if (p1.hp <= 0 || p2.hp <= 0 || round >= MAX_ROUNDS) {
                         clearInterval(matchInterval);
                         
-                        let winner, loser;
+                        let winner;
                         if (isTie) {
                             winner = p1.hp >= p2.hp ? p1.name : p2.name;
-                            loser = p1.hp >= p2.hp ? p2.name : p1.name;
                             if (round >= MAX_ROUNDS) {
-                                addLog(`💀 ${MAX_ROUNDS}${t.round} Tie! HP: ${p1.name}=${p1.hp} ${p2.name}=${p2.hp}`, 'tie');
+                                addLog(`💀 ${MAX_ROUNDS}${t.round} ${t.tie}! HP: ${p1.name}=${p1.hp} ${p2.name}=${p2.hp}`, 'tie');
                             } else {
                                 addLog(`💀 ${t.tie}!`, 'tie');
                             }
-                            document.getElementById('player1Card').classList.add('tie');
-                            document.getElementById('player2Card').classList.add('tie');
                         } else {
                             winner = p1.hp > 0 ? p1.name : p2.name;
-                            loser = p1.hp > 0 ? p2.name : p1.name;
+                            const loser = p1.hp > 0 ? p2.name : p1.name;
                             addLog(`💀 ${loser} ${t.loser}!`, 'eliminated');
                             addLog(`✅ ${winner} ${t.advance}!`, 'winner');
-                            if (winner === p1.name) {
-                                document.getElementById('player1Card').classList.add('winner');
-                                document.getElementById('player2Card').classList.add('loser');
-                            } else {
-                                document.getElementById('player1Card').classList.add('loser');
-                                document.getElementById('player2Card').classList.add('winner');
-                            }
                         }
                         
-                        setTimeout(() => resolve(winner), 1000);
+                        if (winner === p1.name) {
+                            document.getElementById('player1Card').classList.add('winner');
+                            document.getElementById('player2Card').classList.add('loser');
+                        } else {
+                            document.getElementById('player1Card').classList.add('loser');
+                            document.getElementById('player2Card').classList.add('winner');
+                        }
+                        
+                        setTimeout(() => resolve(winner), 500);
                     }
                 }, ROUND_INTERVAL);
             });
@@ -913,7 +917,6 @@
             logContent.scrollTop = logContent.scrollHeight;
         }
         
-        // Initialize
         updatePlayerInputs();
     </script>
 </body>
