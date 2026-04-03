@@ -638,6 +638,20 @@
             updatePlayerInputs();
         }
         
+        // Allowed characters: letters (a-zA-Z), numbers (0-9), Chinese characters, space, hyphen, underscore, period
+        const VALID_NAME_REGEX = /^[a-zA-Z0-9\u4e00-\u9fa5\s\-_\.\u00C0-\u024F\u1E00-\u1EFF]+$/;
+        const INVALID_CHARS = /[\?#<>"'&;\\/|`~!@$%^*()+=,\[\]{}]/;
+        
+        function sanitizeName(name) {
+            return name.replace(INVALID_CHARS, '');
+        }
+        
+        function isValidName(name) {
+            if (!name || name.trim().length === 0) return false;
+            if (name.length > 50) return false;
+            return VALID_NAME_REGEX.test(name);
+        }
+        
         function updatePlayerInputs() {
             const container = document.getElementById('playerInputs');
             const t = i18n[language];
@@ -647,16 +661,35 @@
                 div.className = 'player-input';
                 div.innerHTML = `
                     <span class="player-num">${i + 1}</span>
-                    <input type="text" id="player${i + 1}" placeholder="${t.playerPlaceholder} ${i + 1}" maxlength="50" value="${name}" oninput="players[${i}] = this.value">
+                    <input type="text" id="player${i + 1}" placeholder="${t.playerPlaceholder} ${i + 1}" maxlength="50" value="${escapeHtml(name)}" oninput="onNameInput(this, ${i})">
                 `;
                 container.appendChild(div);
             });
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function onNameInput(input, index) {
+            const sanitized = sanitizeName(input.value);
+            if (sanitized !== input.value) {
+                input.value = sanitized;
+            }
+            players[index] = sanitized;
         }
         
         function addPlayer() {
             if (players.length < 16) {
                 players.push('');
                 updatePlayerInputs();
+                // Focus the new input
+                const inputs = document.querySelectorAll('.player-input input');
+                if (inputs[inputs.length - 1]) {
+                    inputs[inputs.length - 1].focus();
+                }
             }
         }
         
@@ -672,13 +705,21 @@
             for (let i = 1; ; i++) {
                 const input = document.getElementById(`player${i}`);
                 if (!input) break;
-                players.push(input.value.trim());
+                const name = sanitizeName(input.value.trim());
+                if (name) players.push(name);
             }
-            players = players.filter(p => p !== '');
             
             if (players.length < 2) {
                 alert(language === 'cn' ? '请输入至少2个选手的名字！' : 'Please enter at least 2 player names!');
                 return;
+            }
+            
+            // Final validation: ensure all names are valid
+            for (const name of players) {
+                if (!isValidName(name)) {
+                    alert(language === 'cn' ? '名字包含无效字符！' : 'Name contains invalid characters!');
+                    return;
+                }
             }
             
             document.getElementById('setupPanel').style.display = 'none';
