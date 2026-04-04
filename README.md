@@ -84,8 +84,8 @@ Damage = SHA256(name)[random position] % 130
 - Converts to decimal as damage (1-125, 0 becomes 1-20 random)
 
 ### Default Players (1v1 Mode)
-- 绝地武士
-- 圣斗士星矢
+- Thor
+- Luke Skywalker
 
 ---
 
