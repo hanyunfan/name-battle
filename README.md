@@ -15,8 +15,8 @@
 #### 1v1 对决模式
 - 输入两个名字开始对战
 - 基于名字的 SHA256 哈希值生成随机数作为伤害
-- 每回合（1秒）双方同时出招，伤害值 1-99
-- 每人有 500 HP，先归零者输
+- 每回合（1秒）双方同时出招，伤害值 1-125
+- 每人有 1000 HP，先归零者输
 - **平局规则**：
   - 双方 HP 同时归零 → 平局
   - 战斗超过 15 回合 → 平局
@@ -25,7 +25,7 @@
 - 支持 2-16 名选手参赛
 - 自动生成对阵图
 - **非2^n选手处理**：人数不足时，轮空选手自动晋级
-- 每场比赛同样 500 HP，15回合平局规则
+- 每场比赛同样 1000 HP，15回合平局规则
 - 决赛出冠军
 
 ### 招式系统
@@ -37,10 +37,10 @@
 
 ### 伤害计算
 ```
-伤害 = SHA256(名字)[随机位置] % 100
+伤害 = SHA256(名字)[随机位置] % 130
 ```
 - 每回合从哈希值中取 1-2 位十六进制
-- 转换为十进制作为伤害值（0-99，0时随机1-20）
+- 转换为十进制作为伤害值（1-125，0时随机1-20）
 
 ### 默认选手
 1v1 模式默认选手：
@@ -56,8 +56,8 @@
 #### 1v1 Duel Mode
 - Enter two names to start battle
 - Damage based on SHA256 hash of each player's name
-- One round per second, damage 1-99
-- Each player has 500 HP
+- One round per second, damage 1-125
+- Each player has 1000 HP
 - **Tie Rules**:
   - Both HP reach 0 simultaneously → Tie
   - Battle exceeds 15 rounds → Tie
@@ -66,7 +66,7 @@
 - 2-16 players supported
 - Automatic bracket generation
 - **Non-power-of-2 handling**: Players without opponents auto-advance (BYE)
-- Same rules: 500 HP, 15-round tie limit
+- Same rules: 1000 HP, 15-round tie limit
 - Champion wins the final!
 
 ### Move System
@@ -78,10 +78,10 @@
 
 ### Damage Calculation
 ```
-Damage = SHA256(name)[random position] % 100
+Damage = SHA256(name)[random position] % 130
 ```
 - Each round takes 1-2 hex digits from hash
-- Converts to decimal as damage (0-99, 0 becomes 1-20 random)
+- Converts to decimal as damage (1-125, 0 becomes 1-20 random)
 
 ### Default Players (1v1 Mode)
 - Jedi Knight (绝地武士)
