@@ -600,8 +600,14 @@
             }
         };
         
+        function detectLanguage() {
+            const lang = navigator.language || navigator.userLanguage || 'en';
+            return lang.toLowerCase().startsWith('zh') ? 'cn' : 'en';
+        }
+
         function setLanguage(lang) {
             language = lang;
+            document.documentElement.lang = lang;
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.lang === lang);
             });
@@ -1093,7 +1099,7 @@
         }
         
         updatePlayerInputs();
-        setLanguage(language);
+        setLanguage(detectLanguage());
     </script>
 </body>
 </html>
